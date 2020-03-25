@@ -32,7 +32,7 @@ server.listen(port, () => {
 var deck = []; //['🂡', '🂢', '🂣', '🂤', '🂥', '🂦', '🂧', '🂨', '🂩', '🂪', '🂫', '🂭', '🂮', '🂱', '🂲', '🂳', '🂴', '🂵', '🂶', '🂷', '🂸', '🂹', '🂺', '🂻', '🂽', '🂾', '🃁', '🃂', '🃃', '🃄', '🃅', '🃆', '🃇', '🃈', '🃉', '🃊', '🃋', '🃍', '🃎', '🃑', '🃒', '🃓', '🃔', '🃕', '🃖', '🃗', '🃘', '🃙', '🃚', '🃛', '🃝', '🃞', '🂿', '🃟'];
 glob("./public/cards/*", function (er, files) {
   deck = files;
-  deck.forEach((card, index, array) => array[index] = card.replace(`/public`,``));
+  deck.forEach((card, index, array) => array[index] = card.replace(`/public`, ``));
   console.log(deck);
 })
 
@@ -89,16 +89,7 @@ io.on('connection', function (socket) {
     let uuid = data.uuid;
     let card = data.card;
     console.log(`played card - ${card} - uuid ${uuid}`);
-
-    if (players[turn].uuid == uuid && (players[turn].hand.indexOf(card) >= 0)) {
-      discard.push(card);
-      players[turn].hand = players[turn].hand.filter((item) => { return item !== card });
-      nextTurn();
-      updateState()
-    }
-    else {
-      console.log(`error player ${uuid} played out of turn`);
-    }
+    playCard(card, uuid);
 
   });
 
@@ -120,6 +111,51 @@ io.on('connection', function (socket) {
     turn = (turn + 1) % players.length;
     console.log(`turn = ${turn}`)
     io.sockets.emit('turn', turn);
+  }
+
+
+
+  function playCard(card, uuid) {
+    //apply rules
+    //player's turn
+    let playerIndex = null;
+    if (players[turn].uuid != uuid) {
+      console.warn(`Player - ${players[turn].name} - played out of turn`);
+      return false;
+    } else {
+      playerIndex = turn;
+    }
+
+    //player has card
+    if (players[playerIndex].hand.indexOf(card) < 0) {
+      console.warn(`Player - ${players[turn].name} - does not have a ${card}`);
+      return false;
+    }
+
+    //same colour, number or is a wild
+    let topCard = discard.slice(-1).pop() || ' ';
+    let colours = ['yellow', 'blue', 'red', 'green'];
+    let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
+    let valid = card.includes('wild') || topCard == ' ';
+    colours.forEach(colour => {
+      cardsets.forEach(cardset => {
+        valid = valid || ((topCard.includes(colour) && card.includes(colour))
+          || ((topCard.includes(cardset) && card.includes(cardset))));
+      });
+    });
+    if (!valid) {
+      console.warn(`Player - ${players[turn].name} - ${card} cannot be played on ${topCard}`);
+      return false;
+    }
+
+    //add card to discard
+    discard.push(card);
+    //remove from hand
+    players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
+
+    nextTurn();
+    updateState()
+    return true;
   }
 
 
@@ -178,5 +214,9 @@ function clearHands() {
   });
 }
 
+
+function nextPlayer(playerIndex) {
+  return playerIndex = (playerIndex + 1) % players.length;
+}
 
 module.exports = app;
