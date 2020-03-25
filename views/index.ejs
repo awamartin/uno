@@ -21,6 +21,9 @@
     $("#start_but").click(function () {
       socket.emit('startgame');
     });
+    $("#pick_but").click(function () {
+      socket.emit('pickup', uuid);
+    });
 
     socket.on('state', data => {
       let discardTop = data.discardTop;
@@ -84,7 +87,7 @@
   </h1>
   <p>
     <button id="start_but">Deal</button>
-    <button id="start_but">Pick-up</button>
+    <button id="pick_but">Pick-up</button>
   </p>
   <div>Your Name: <label id="playerName"></label></div>
   <div>Next Turn: <label id="playerNext"></div>

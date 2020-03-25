@@ -73,6 +73,18 @@ io.on('connection', function (socket) {
     console.log(players);
   });
 
+  socket.on('pickup', function (uuid) {
+    console.log(`pickup - ${uuid}`);
+    if (players[turn].uuid == uuid) {
+      players[turn].hand.push(pile.pop());
+      nextTurn();
+      updateState()
+    }
+    else {
+      console.log(`error player ${uuid} played out of turn`);
+    }
+  });
+
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
