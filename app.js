@@ -148,6 +148,17 @@ io.on('connection', function (socket) {
       return false;
     }
 
+    //Modifiers
+    //wild choose colour
+
+    //draw two
+
+    //draw four
+
+    //skip
+
+    //reverse
+
     //add card to discard
     discard.push(card);
     //remove from hand
