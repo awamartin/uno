@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var socket = require('socket.io')
+var glob = require("glob")
 
 var indexRouter = require('./routes/index');
 
@@ -27,12 +28,21 @@ server.listen(port, () => {
 })
 
 
+//create deck
+var deck = []; //['🂡', '🂢', '🂣', '🂤', '🂥', '🂦', '🂧', '🂨', '🂩', '🂪', '🂫', '🂭', '🂮', '🂱', '🂲', '🂳', '🂴', '🂵', '🂶', '🂷', '🂸', '🂹', '🂺', '🂻', '🂽', '🂾', '🃁', '🃂', '🃃', '🃄', '🃅', '🃆', '🃇', '🃈', '🃉', '🃊', '🃋', '🃍', '🃎', '🃑', '🃒', '🃓', '🃔', '🃕', '🃖', '🃗', '🃘', '🃙', '🃚', '🃛', '🃝', '🃞', '🂿', '🃟'];
+glob("./public/cards/*", function (er, files) {
+  deck = files;
+  deck.forEach((card, index, array) => array[index] = card.replace(`/public`,``));
+  console.log(deck);
+})
+
 var players = [];
-
-
+var discard = [];
+var pile = [];
+var turn = 0;
 
 io.on('connection', function (socket) {
-  console.log(`a user connected`);
+  console.log(`a user connected - ${socket.id}`);
 
   socket.on('disconnect', function () {
     console.log(`user disconnected`);
@@ -40,18 +50,67 @@ io.on('connection', function (socket) {
 
   socket.on('register', function (uuid) {
     console.log('register: ' + uuid);
-    if (typeof players[uuid] === 'undefined') {
-      //new player
-      players[uuid] = { hand: [] };
-      players['uuid2'] = { hand: [] };
-      console.log(players);
+
+    //does player exist?
+    if (players.find(player => player.uuid == uuid) != null) {
+      console.log(`player ${uuid} exists`);
+      players.find((player, playerIndex) => {
+        players[playerIndex].socket = socket.id;
+        players[playerIndex].name = `Player ${playerIndex + 1}`;
+      });
+    } else {
+      console.log(`player ${uuid} created`);
+      players.push({ uuid, hand: [], socket: socket.id });
     }
+    updateState();
   });
 
   socket.on('startgame', function () {
     console.log('startgame');
+    clearHands();
+    deal();
+    updateState()
+    console.log(players);
+  });
+
+  socket.on('playcard', function (data) {
+    let uuid = data.uuid;
+    let card = data.card;
+    console.log(`played card - ${card} - uuid ${uuid}`);
+
+    if (players[turn].uuid == uuid && (players[turn].hand.indexOf(card) >= 0)) {
+      discard.push(card);
+      players[turn].hand = players[turn].hand.filter((item) => { return item !== card });
+      nextTurn();
+      updateState()
+    }
+    else {
+      console.log(`error player ${uuid} played out of turn`);
+    }
 
   });
+
+
+  function updateAllPlayers() {
+    players.forEach(player => {
+      io.sockets.emit(player.uuid, player);
+    });
+  }
+
+  function updateState() {
+    updateAllPlayers();
+    let discardTop = discard.slice(-1).pop() || ' ';
+    let playerNext = `Player ${turn + 1}`;
+    io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext });
+  }
+
+  function nextTurn() {
+    turn = (turn + 1) % players.length;
+    console.log(`turn = ${turn}`)
+    io.sockets.emit('turn', turn);
+  }
+
+
 });
 
 
@@ -73,5 +132,39 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+function deal() {
+  //create deck
+  /*
+  let deck = [];
+  for (let number = 1; number <= 13; number++) {
+    deck.push({ suit: '♠', card: number });
+    deck.push({ suit: '♡', card: number });
+    deck.push({ suit: '♢', card: number });
+    deck.push({ suit: '♣', card: number });
+  }
+  */
+  //shuffle to pile
+  discard = [];
+  pile = deck;
+  pile.sort(() => Math.random() - 0.5);
+  //deal
+  players.forEach((player, playerIndex) => {
+    for (let cardIndex = 0; cardIndex < 7; cardIndex++) {
+      players[playerIndex].hand.push(pile.pop());
+    }
+    players[playerIndex].hand.sort();
+  });
+}
+
+function clearHands() {
+  players.forEach((player, playerIndex) => {
+    for (let i = 0; i < 7; i++) {
+      players[playerIndex].hand = [];
+    }
+  });
+}
+
 
 module.exports = app;

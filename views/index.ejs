@@ -2,18 +2,72 @@
 <html>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs"></script>
+<script type="module">
+  import Cookies from 'https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs'
+  //uuid
+  console.log(`Cookie = ${Cookies.get('uuid')}`);
+  if (Cookies.get('uuid') == null) {
+    Cookies.set('uuid', Math.random());
+  }
+  var uuid = Cookies.get('uuid');
+
+  //socket
   var socket = io('http://localhost:3001');
   socket.on('connect', () => {
     console.log(socket.connected);
-    socket.emit('register', 'uuid');
+    socket.emit('register', uuid);
 
     $("#start_but").click(function () {
       socket.emit('startgame');
     });
 
+    socket.on('state', data => {
+      let discardTop = data.discardTop;
+      let pileCount = data.pileCount;
+      let discardCount = data.discardCount;
+      let playerNext = data.playerNext;
+
+      console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}`);
+
+      $("#playerNext").text(playerNext);
+      $("#discardCount").text(discardCount);
+      $("#pileCount").text(pileCount);
+
+      $("#discardTop").empty();
+      let card = $('<img/>',
+          {
+            src: discardTop,
+            width: '100px',
+            class: "cards"});
+            $("#discardTop").append(card);
+    });
+
+    socket.on(uuid, player => {
+      console.log(player);
+      $("#hand").empty();
+      $("#playerName").text(player.name);
+
+      let card;
+      jQuery.each(player.hand, (card) => {
+        card = $('<img/>',
+          {
+            src: player.hand[card],
+            width: '100px',
+            class: "cards",
+            click: function () {
+              console.log(`played ${jQuery(this).text()}`);
+              socket.emit('playcard', { uuid: uuid, card: jQuery(this).attr('src') });
+            }
+          });
+        $("#hand").append(card);
+      });
+    });
+
 
   });
+
+
   setInterval(() => { socket.emit('msg', 'test') }, 10000);
 </script>
 
@@ -26,12 +80,24 @@
 
 <body>
   <h1>
-    UNO Game
+    Uno
   </h1>
-  <p>Welcome to
-    <%= title %>
-      <button id="start_but">Start Game</button>
+  <p>
+    <button id="start_but">Deal</button>
+    <button id="start_but">Pick-up</button>
   </p>
+  <div>Your Name: <label id="playerName"></label></div>
+  <div>Next Turn: <label id="playerNext"></div>
+  <div>Cards in Pile: <label id="pileCount"></div>
+  <div>Cards in Discard: <label id="discardCount"></div>
+  <div>The Discard Pile:</div>
+  <div id="discard" class="cards">
+    <label id="discardTop"></label>
+  </div>
+  <div>Your Hand:</div>
+  <div id="hand" class="cards">
+
+  </div>
 </body>
 
 </html>
