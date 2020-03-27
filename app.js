@@ -40,6 +40,9 @@ var players = [];
 var discard = [];
 var pile = [];
 var turn = 0;
+var reverseDirection = false;
+
+var prevWildColour = null;
 
 io.on('connection', function (socket) {
   console.log(`a user connected - ${socket.id}`);
@@ -74,25 +77,30 @@ io.on('connection', function (socket) {
   });
 
   socket.on('pickup', function (uuid) {
-    console.log(`pickup - ${uuid}`);
+    message(`pickup - ${uuid}`);
     if (players[turn].uuid == uuid) {
       players[turn].hand.push(pile.pop());
       nextTurn();
       updateState()
     }
     else {
-      console.log(`error player ${uuid} played out of turn`);
+      message(`${uuidToName(uuid)} played out of turn`);
     }
   });
 
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
-    console.log(`played card - ${card} - uuid ${uuid}`);
-    playCard(card, uuid);
+    let wildColour = data.wildColour;
+    message(`${uuidToName(uuid)} played card - ${card}`);
+    playCard(card, uuid, wildColour);
 
   });
 
+  socket.on('challenge', function (uuid) {
+    message(`player challenged - ${uuidToName(uuid)}`);
+    //todo
+  });
 
   function updateAllPlayers() {
     players.forEach(player => {
@@ -107,20 +115,25 @@ io.on('connection', function (socket) {
     io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext });
   }
 
-  function nextTurn() {
-    turn = (turn + 1) % players.length;
+  function nextTurn(skip) {
+    turn = nextPlayer(turn);
+    if (skip) turn = nextPlayer(turn);
     console.log(`turn = ${turn}`)
     io.sockets.emit('turn', turn);
   }
 
+  function message(text) {
+    console.log(text);
+    io.sockets.emit('message', text);
+  }
 
 
-  function playCard(card, uuid) {
+  function playCard(card, uuid, wildColour = null) {
     //apply rules
     //player's turn
     let playerIndex = null;
     if (players[turn].uuid != uuid) {
-      console.warn(`Player - ${players[turn].name} - played out of turn`);
+      message(`${uuidToName(uuid)} - played out of turn`);
       return false;
     } else {
       playerIndex = turn;
@@ -128,7 +141,7 @@ io.on('connection', function (socket) {
 
     //player has card
     if (players[playerIndex].hand.indexOf(card) < 0) {
-      console.warn(`Player - ${players[turn].name} - does not have a ${card}`);
+      message(`${uuidToName(uuid)} - does not have a ${card}`);
       return false;
     }
 
@@ -139,38 +152,53 @@ io.on('connection', function (socket) {
     let valid = card.includes('wild') || topCard == ' ';
     colours.forEach(colour => {
       cardsets.forEach(cardset => {
-        valid = valid || ((topCard.includes(colour) && card.includes(colour))
-          || ((topCard.includes(cardset) && card.includes(cardset))));
+        valid = valid || (topCard.includes(colour) && card.includes(colour))
+          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
       });
     });
     if (!valid) {
-      console.warn(`Player - ${players[turn].name} - ${card} cannot be played on ${topCard}`);
+      message(`${uuidToName(uuid)} - ${card} cannot be played on ${topCard}`);
       return false;
     }
 
     //Modifiers
     //wild choose colour
     if (card.includes('wild')) {
-      
+      message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
     }
+    prevWildColour = wildColour;
+
     //draw two
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    if (card.includes('picker')) {
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    }
+
     //draw four
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
-    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    if (card.includes('wild_pick')) {
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    }
+
     //skip
+    let skip = false;
+    if (card.includes('skip')) {
+      skip = true;
+    }
 
     //reverse
+    if (card.includes('reverse')) {
+      reverseDirection = !reverseDirection;
+    }
 
     //add card to discard
     discard.push(card);
     //remove from hand
     players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
 
-    nextTurn();
+    nextTurn(skip);
     updateState()
     return true;
   }
@@ -200,19 +228,9 @@ app.use(function (err, req, res, next) {
 
 
 function deal() {
-  //create deck
-  /*
-  let deck = [];
-  for (let number = 1; number <= 13; number++) {
-    deck.push({ suit: '♠', card: number });
-    deck.push({ suit: '♡', card: number });
-    deck.push({ suit: '♢', card: number });
-    deck.push({ suit: '♣', card: number });
-  }
-  */
   //shuffle to pile
   discard = [];
-  pile = deck;
+  pile = [...deck]
   pile.sort(() => Math.random() - 0.5);
   //deal
   players.forEach((player, playerIndex) => {
@@ -221,6 +239,8 @@ function deal() {
     }
     players[playerIndex].hand.sort();
   });
+  //one for the discard?
+  //discard.push(pile.pop());
 }
 
 function clearHands() {
@@ -233,7 +253,26 @@ function clearHands() {
 
 
 function nextPlayer(playerIndex) {
-  return playerIndex = (playerIndex + 1) % players.length;
+  if (!reverseDirection) {
+    return playerIndex = (playerIndex + 1) % players.length;
+  } else {
+    let newindex = (playerIndex - 1);
+    if (newindex < 0) newindex = players.length - 1;
+    return newindex;
+  }
+
+}
+
+function uuidToName(uuid) {
+  let name = '';
+  let index = 0;
+  players.forEach((player, playerIndex) => {
+    if (player.uuid == uuid) {
+      name = player.name;
+      index = playerIndex;
+    }
+  });
+  return name;
 }
 
 module.exports = app;

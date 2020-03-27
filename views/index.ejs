@@ -5,26 +5,53 @@
 <script type="module" src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs"></script>
 <script type="module">
   import Cookies from 'https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs'
-  //uuid
+  //get uuid, store a new hash if one does not exist
+  //the uuid is used to identify a returning player
   console.log(`Cookie = ${Cookies.get('uuid')}`);
   if (Cookies.get('uuid') == null) {
     Cookies.set('uuid', Math.random());
   }
   var uuid = Cookies.get('uuid');
 
+  var playedWild = '';
+
   //socket
   var socket = io('http://localhost:3001');
   socket.on('connect', () => {
+    //on socket connection
     console.log(socket.connected);
     socket.emit('register', uuid);
 
+    //misc buttons
     $("#start_but").click(function () {
       socket.emit('startgame');
     });
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);
     });
+    $("#challenge_but").click(function () {
+      socket.emit('challenge', uuid);
+    });
 
+    //wildcard selections
+    $("#red_but").click(function () {
+      socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'red' });
+      $("#colours").hide();
+    });
+    $("#blue_but").click(function () {
+      socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'blue' });
+      $("#colours").hide();
+    });
+    $("#green_but").click(function () {
+      socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'green' });
+      $("#colours").hide();
+    });
+    $("#yellow_but").click(function () {
+      socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'yellow' });
+      $("#colours").hide();
+    });
+
+    //update state of misc items
     socket.on('state', data => {
       let discardTop = data.discardTop;
       let pileCount = data.pileCount;
@@ -39,20 +66,38 @@
 
       $("#discardTop").empty();
       let card = $('<img/>',
-          {
-            src: discardTop,
-            width: '100px',
-            class: "cards"});
-            $("#discardTop").append(card);
+        {
+          src: discardTop,
+          width: '100px',
+          class: "cards"
+        });
+      $("#discardTop").append(card);
+      //show challenge buttons
+      if (discardTop.includes('wild') && (playerNext == $("#playerName").text())) {
+        $("#challenge").show();
+      } else {
+        $("#challenge").hide();
+      }
     });
 
+    //log message
+    socket.on('message', text => {
+      //append to list
+      $("#messages").append(text)
+      //add newline
+      $("#messages").append("<br />");
+    });
+
+    //player status is sent to a socket named as the player's uuid
     socket.on(uuid, player => {
       console.log(player);
       $("#hand").empty();
       $("#playerName").text(player.name);
 
+      //add each card to the hand
       let card;
       jQuery.each(player.hand, (card) => {
+        //we create a card like this so we can attach some logic to it
         card = $('<img/>',
           {
             src: player.hand[card],
@@ -60,7 +105,12 @@
             class: "cards",
             click: function () {
               console.log(`played ${jQuery(this).text()}`);
-              socket.emit('playcard', { uuid: uuid, card: jQuery(this).attr('src') });
+              if (jQuery(this).attr('src').includes('wild')) {
+                $("#colours").show();
+                playedWild = jQuery(this).attr('src');
+              } else {
+                socket.emit('playcard', { uuid: uuid, card: jQuery(this).attr('src') });
+              }
             }
           });
         $("#hand").append(card);
@@ -70,9 +120,8 @@
 
   });
 
-
-  setInterval(() => { socket.emit('msg', 'test') }, 10000);
 </script>
+
 
 <head>
   <title>
@@ -83,7 +132,7 @@
 
 <body>
   <h1>
-    Uno
+    UNO Game
   </h1>
   <p>
     <button id="start_but">Deal</button>
@@ -97,8 +146,17 @@
   <div id="discard" class="cards">
     <label id="discardTop"></label>
   </div>
+  <div hidden="true" id="colours"><button id="blue_but">Blue</button><button id="green_but">Green</button><button
+      id="red_but">Red</button><button id="yellow_but">Yellow</button></div>
+  <div hidden="true" id="challenge"><button id="challenge_but">Challenge</button></div>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
+
+  </div>
+  <div>
+    Log:
+  </div>
+  <div id="messages">
 
   </div>
 </body>
