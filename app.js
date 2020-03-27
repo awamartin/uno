@@ -60,7 +60,7 @@ io.on('connection', function (socket) {
       });
     } else {
       console.log(`player ${uuid} created`);
-      players.push({ uuid, hand: [], socket: socket.id });
+      players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
     }
     updateState();
   });
@@ -150,11 +150,17 @@ io.on('connection', function (socket) {
 
     //Modifiers
     //wild choose colour
-
+    if (card.includes('wild')) {
+      
+    }
     //draw two
-
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
     //draw four
-
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
+    players[nextPlayer(playerIndex)].hand.push(pile.pop());
     //skip
 
     //reverse
