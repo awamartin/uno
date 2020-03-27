@@ -46,6 +46,7 @@ var reverseDirection = false;
 var prevWildColour = null;
 var dealer = 0;
 var inProgress = false;
+var challengeEnabled = false;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -96,7 +97,7 @@ io.on('connection', function (socket) {
       let pickupCard = pile.pop();
       players[turn].hand.push(pickupCard);
       //check if the player can put it down straight away
-      if(!isPlayable(pickupCard)) nextTurn();
+      if (!isPlayable(pickupCard)) nextTurn();
       updateState()
     }
     else {
@@ -118,12 +119,46 @@ io.on('connection', function (socket) {
 
   //user plays challenge
   socket.on('challenge', function (uuid) {
-    message(`player challenged - ${uuidToName(uuid)}`);
-    //todo
+    previousPlayerIndex = nextPlayer(turn, !reverseDirection);
+    message(`${uuidToName(uuid)} challenged - ${players[previousPlayerIndex].name}`);
+    
+    let invalid = false;
+    //check if that colour could have been played
+    players[previousPlayerIndex].hand.forEach(card => {
+      invalid = invalid || card.includes(prevWildColour);
+    });
+
+    if (invalid) {
+      //play was invalid
+      message(`challenge correct`);
+      players[previousPlayerIndex].hand.push(pile.pop());
+      checkPile();
+      players[previousPlayerIndex].hand.push(pile.pop());
+      checkPile();
+      if (discard.slice(-1).pop().includes('wild_pick')) {
+        players[previousPlayerIndex].hand.push(pile.pop());
+        checkPile();
+        players[previousPlayerIndex].hand.push(pile.pop());
+        checkPile();
+        pile.push(players[turn].hand.pop());
+        pile.push(players[turn].hand.pop());
+        pile.push(players[turn].hand.pop());
+        pile.push(players[turn].hand.pop());
+      }
+
+      //reshuffle the deck since we unplayed some cards
+      pile.sort(() => Math.random() - 0.5);
+
+    } else {
+      message(`challenge failed`);
+      players[turn].hand.push(pile.pop());
+      checkPile();
+      players[turn].hand.push(pile.pop());
+      checkPile();
+    }
+    challengeEnabled = false;
+    updateState()
   });
-
-
-
 });
 
 app.use('/', indexRouter);
@@ -165,7 +200,7 @@ function deal() {
   inProgress = true;
   turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
-  
+
 }
 
 //send state to all players
@@ -181,7 +216,7 @@ function updateState() {
   updateAllPlayers();
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = `Player ${turn + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress });
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress, challengeEnabled });
 }
 
 //send a log message to all players
@@ -231,14 +266,17 @@ function playCard(card, uuid, wildColour = null) {
 
 
   if (!isPlayable(card)) {
-    message(`${uuidToName(uuid)} - ${card} cannot be played on ${topCard}`);
+    message(`${uuidToName(uuid)} - ${card} cannot be played on ${discard.slice(-1).pop()}`);
     return false;
   }
 
   //Modifiers
   //wild choose colour
   if (card.includes('wild')) {
+    challengeEnabled = true;
     message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
+  }else {
+    challengeEnabled = false;
   }
   prevWildColour = wildColour;
 
@@ -291,19 +329,19 @@ function playCard(card, uuid, wildColour = null) {
 }
 
 //check if the card is playable
-function isPlayable(card){
-    //same colour, number or is a wild
-    let topCard = discard.slice(-1).pop() || ' ';
-    let colours = ['yellow', 'blue', 'red', 'green'];
-    let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
-    let valid = card.includes('wild') || topCard == ' ';
-    colours.forEach(colour => {
-      cardsets.forEach(cardset => {
-        valid = valid || (topCard.includes(colour) && card.includes(colour))
-          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
-      });
+function isPlayable(card) {
+  //same colour, number or is a wild
+  let topCard = discard.slice(-1).pop() || ' ';
+  let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
+  let colours = ['yellow', 'blue', 'red', 'green'];
+  let valid = card.includes('wild') || topCard == ' ';
+  colours.forEach(colour => {
+    cardsets.forEach(cardset => {
+      valid = valid || (topCard.includes(colour) && card.includes(colour))
+        || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
     });
-    return valid;
+  });
+  return valid;
 }
 
 //check to see if there are plenty of cards in the pile

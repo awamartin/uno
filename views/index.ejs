@@ -59,6 +59,7 @@
       let playerNext = data.playerNext;
       let playerCount = data.playerCount;
       let inProgress = data.inProgress;
+      let challengeEnabled = data.challengeEnabled;
 
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
@@ -85,22 +86,17 @@
         });
       $("#discardTop").append(card);
       //show challenge buttons
-      if (discardTop.includes('wild') && (playerNext == $("#playerName").text())) {
+      if (challengeEnabled && (playerNext == $("#playerName").text())) {
         $("#challenge").show();
       } else {
         $("#challenge").hide();
       }
-
-
-
     });
 
     //log message
     socket.on('message', text => {
-      //append to list
-      $("#messages").append(text)
-      //add newline
-      $("#messages").append("<br />");
+      //add to log
+      $("#messages").prepend(`${text}<br />`)
     });
 
 
