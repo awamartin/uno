@@ -45,6 +45,7 @@ var turn = 0;
 var reverseDirection = false;
 var prevWildColour = null;
 var dealer = 0;
+var inProgress = false;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -76,8 +77,8 @@ io.on('connection', function (socket) {
   });
 
   //user start a new game
-  socket.on('startgame', function (uuid) {
-    if (players[turn].uuid == uuid) {
+  socket.on('deal', function (uuid) {
+    if (players[dealer].uuid == uuid) {
       console.log(`${uuidToName(uuid)} dealt`);
       clearHands();
       deal();
@@ -92,13 +93,17 @@ io.on('connection', function (socket) {
   socket.on('pickup', function (uuid) {
     message(`${uuidToName(uuid)} picked up a card`);
     if (players[turn].uuid == uuid) {
-      players[turn].hand.push(pile.pop());
-      nextTurn();
+      let pickupCard = pile.pop();
+      players[turn].hand.push(pickupCard);
+      //check if the player can put it down straight away
+      if(!isPlayable(pickupCard)) nextTurn();
       updateState()
     }
     else {
       message(`${uuidToName(uuid)} played out of turn`);
     }
+
+    checkPile();
   });
 
   //user plays a card
@@ -117,109 +122,8 @@ io.on('connection', function (socket) {
     //todo
   });
 
-  //send state to all players
-  function updateAllPlayers() {
-    players.forEach(player => {
-      //emit each hand to the specific player
-      io.sockets.emit(player.uuid, player);
-    });
-  }
 
-  //update everything to each player
-  function updateState() {
-    updateAllPlayers();
-    let discardTop = discard.slice(-1).pop() || ' ';
-    let playerNext = `Player ${turn + 1}`;
-    io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext });
-  }
 
-  //send a log message to all players
-  function message(text) {
-    console.log(text);
-    io.sockets.emit('message', text);
-  }
-
-  //apply play card and rules
-  function playCard(card, uuid, wildColour = null) {
-    //apply rules
-    //player's turn
-    let playerIndex = null;
-    if (players[turn].uuid != uuid) {
-      message(`${uuidToName(uuid)} - played out of turn`);
-      return false;
-    } else {
-      playerIndex = turn;
-    }
-
-    //player has card
-    if (players[playerIndex].hand.indexOf(card) < 0) {
-      message(`${uuidToName(uuid)} - does not have a ${card}`);
-      return false;
-    }
-
-    //same colour, number or is a wild
-    let topCard = discard.slice(-1).pop() || ' ';
-    let colours = ['yellow', 'blue', 'red', 'green'];
-    let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
-    let valid = card.includes('wild') || topCard == ' ';
-    colours.forEach(colour => {
-      cardsets.forEach(cardset => {
-        valid = valid || (topCard.includes(colour) && card.includes(colour))
-          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
-      });
-    });
-    if (!valid) {
-      message(`${uuidToName(uuid)} - ${card} cannot be played on ${topCard}`);
-      return false;
-    }
-
-    //Modifiers
-    //wild choose colour
-    if (card.includes('wild')) {
-      message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
-    }
-    prevWildColour = wildColour;
-
-    //draw two
-    if (card.includes('picker')) {
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    }
-
-    //draw four
-    if (card.includes('wild_pick')) {
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    }
-
-    //skip
-    let skip = false;
-    if (card.includes('skip')) {
-      skip = true;
-    }
-
-    //reverse
-    if (card.includes('reverse')) {
-      reverseDirection = !reverseDirection;
-    }
-
-    //add card to discard
-    discard.push(card);
-    //remove from hand
-    players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
-
-    //check for win
-    if (players[playerIndex].hand.length == 0) {
-      message(`${uuidToName(uuid)} won the game`);
-    }
-
-    nextTurn(skip);
-
-    updateState();
-    return true;
-  }
 });
 
 app.use('/', indexRouter);
@@ -257,6 +161,33 @@ function deal() {
   });
   //one for the top of the discard
   //discard.push(pile.pop());
+
+  inProgress = true;
+  turn = nextPlayer(dealer);
+  dealer = nextPlayer(dealer);
+  
+}
+
+//send state to all players
+function updateAllPlayers() {
+  players.forEach(player => {
+    //emit each hand to the specific player
+    io.sockets.emit(player.uuid, player);
+  });
+}
+
+//update everything to each player
+function updateState() {
+  updateAllPlayers();
+  let discardTop = discard.slice(-1).pop() || ' ';
+  let playerNext = `Player ${turn + 1}`;
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress });
+}
+
+//send a log message to all players
+function message(text) {
+  console.log(text);
+  io.sockets.emit('message', text);
 }
 
 //remove all cards from hands
@@ -280,8 +211,118 @@ function nextPlayer(playerIndex, reverse = false) {
 
 }
 
+//apply play card and rules
+function playCard(card, uuid, wildColour = null) {
+  //apply rules
+  //player's turn
+  let playerIndex = null;
+  if (players[turn].uuid != uuid) {
+    message(`${uuidToName(uuid)} - played out of turn`);
+    return false;
+  } else {
+    playerIndex = turn;
+  }
+
+  //player has card
+  if (players[playerIndex].hand.indexOf(card) < 0) {
+    message(`${uuidToName(uuid)} - does not have a ${card}`);
+    return false;
+  }
+
+
+  if (!isPlayable(card)) {
+    message(`${uuidToName(uuid)} - ${card} cannot be played on ${topCard}`);
+    return false;
+  }
+
+  //Modifiers
+  //wild choose colour
+  if (card.includes('wild')) {
+    message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
+  }
+  prevWildColour = wildColour;
+
+  //draw two
+  if (card.includes('picker')) {
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+  }
+
+  //draw four
+  if (card.includes('wild_pick')) {
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    checkPile();
+  }
+
+  //skip
+  let skip = false;
+  if (card.includes('skip')) {
+    skip = true;
+  }
+
+  //reverse
+  if (card.includes('reverse')) {
+    reverseDirection = !reverseDirection;
+  }
+
+  //add card to discard
+  discard.push(card);
+  //remove from hand
+  players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
+
+  //check for win
+  if (players[playerIndex].hand.length == 0) {
+    message(`${uuidToName(uuid)} won the game`);
+    inProgress = false;
+  }
+
+  nextTurn(skip);
+
+  updateState();
+  return true;
+}
+
+//check if the card is playable
+function isPlayable(card){
+    //same colour, number or is a wild
+    let topCard = discard.slice(-1).pop() || ' ';
+    let colours = ['yellow', 'blue', 'red', 'green'];
+    let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
+    let valid = card.includes('wild') || topCard == ' ';
+    colours.forEach(colour => {
+      cardsets.forEach(cardset => {
+        valid = valid || (topCard.includes(colour) && card.includes(colour))
+          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
+      });
+    });
+    return valid;
+}
+
+//check to see if there are plenty of cards in the pile
+function checkPile() {
+  //if there are no more cards in the pile, reshuffle discard
+  if (pile.length < 2) {
+    //hold the top card
+    let topcard = discard.pop();
+    //randomly sort
+    pile.sort(() => Math.random() - 0.5);
+    //put them in the pile
+    discard.forEach(card => pile.push(card));
+    //empty discard and put the original card back on
+    discard = [topcard];
+  }
+}
+
 //apply the next turn
-function nextTurn(skip) {
+function nextTurn(skip = false) {
   turn = nextPlayer(turn, reverseDirection);
   if (skip) turn = nextPlayer(turn, reverseDirection);
   console.log(`turn = ${turn}`)

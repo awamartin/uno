@@ -23,8 +23,8 @@
     socket.emit('register', uuid);
 
     //misc buttons
-    $("#start_but").click(function () {
-      socket.emit('startgame', uuid);
+    $("#deal_but").click(function () {
+      socket.emit('deal', uuid);
     });
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);
@@ -57,13 +57,25 @@
       let pileCount = data.pileCount;
       let discardCount = data.discardCount;
       let playerNext = data.playerNext;
+      let playerCount = data.playerCount;
+      let inProgress = data.inProgress;
 
-      console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}`);
+      console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
       $("#playerNext").text(playerNext);
       $("#discardCount").text(discardCount);
       $("#pileCount").text(pileCount);
-
+      $("#playerCount").text(playerCount);
+      //toggle deal and pickup
+      if (inProgress) {
+        $("#deal_but").hide();
+        $("#pick_but").show();
+      } else {
+        $("#challenge").hide();
+        $("#deal_but").show();
+        $("#pick_but").hide();
+      }
+      //update discard pile
       $("#discardTop").empty();
       let card = $('<img/>',
         {
@@ -78,6 +90,9 @@
       } else {
         $("#challenge").hide();
       }
+
+
+
     });
 
     //log message
@@ -87,6 +102,7 @@
       //add newline
       $("#messages").append("<br />");
     });
+
 
     //player status is sent to a socket named as the player's uuid
     socket.on(uuid, player => {
@@ -135,10 +151,12 @@
     UNO Game
   </h1>
   <p>
-    <button id="start_but">Deal</button>
-    <button id="pick_but">Pick-up</button>
+    <button id="deal_but">Deal</button>
+    <button id="pick_but" hidden="true">Pick-up</button>
   </p>
   <div>Your Name: <label id="playerName"></label></div>
+  <div>Number of Players: <label id="playerCount"></label></div>
+
   <div>Next Turn: <label id="playerNext"></div>
   <div>Cards in Pile: <label id="pileCount"></div>
   <div>Cards in Discard: <label id="discardCount"></div>
