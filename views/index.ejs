@@ -24,7 +24,7 @@
 
     //misc buttons
     $("#start_but").click(function () {
-      socket.emit('startgame');
+      socket.emit('startgame', uuid);
     });
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);

@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//express server
 const server = require('http').Server(app);
 const io = socket(server);
 const port = process.env.PORT || 3001
@@ -36,48 +37,60 @@ glob("./public/cards/*", function (er, files) {
   console.log(deck);
 })
 
+//globals for tracking state
 var players = [];
 var discard = [];
 var pile = [];
 var turn = 0;
 var reverseDirection = false;
-
 var prevWildColour = null;
+var dealer = 0;
 
+//open a socket
 io.on('connection', function (socket) {
   console.log(`a user connected - ${socket.id}`);
 
+  //log message on disconnect
   socket.on('disconnect', function () {
     console.log(`user disconnected`);
   });
 
+  //user connected and sends uuid to identify
   socket.on('register', function (uuid) {
     console.log('register: ' + uuid);
 
     //does player exist?
     if (players.find(player => player.uuid == uuid) != null) {
+      //player exists
       console.log(`player ${uuid} exists`);
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
         players[playerIndex].name = `Player ${playerIndex + 1}`;
       });
     } else {
+      //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
     }
     updateState();
   });
 
-  socket.on('startgame', function () {
-    console.log('startgame');
-    clearHands();
-    deal();
-    updateState()
-    console.log(players);
+  //user start a new game
+  socket.on('startgame', function (uuid) {
+    if (players[turn].uuid == uuid) {
+      console.log(`${uuidToName(uuid)} dealt`);
+      clearHands();
+      deal();
+      updateState()
+    }
+    else {
+      message(`${uuidToName(uuid)} dealt out of turn`);
+    }
   });
 
+  //user picks up a card
   socket.on('pickup', function (uuid) {
-    message(`pickup - ${uuid}`);
+    message(`${uuidToName(uuid)} picked up a card`);
     if (players[turn].uuid == uuid) {
       players[turn].hand.push(pile.pop());
       nextTurn();
@@ -88,6 +101,7 @@ io.on('connection', function (socket) {
     }
   });
 
+  //user plays a card
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
@@ -97,17 +111,21 @@ io.on('connection', function (socket) {
 
   });
 
+  //user plays challenge
   socket.on('challenge', function (uuid) {
     message(`player challenged - ${uuidToName(uuid)}`);
     //todo
   });
 
+  //send state to all players
   function updateAllPlayers() {
     players.forEach(player => {
+      //emit each hand to the specific player
       io.sockets.emit(player.uuid, player);
     });
   }
 
+  //update everything to each player
   function updateState() {
     updateAllPlayers();
     let discardTop = discard.slice(-1).pop() || ' ';
@@ -115,19 +133,13 @@ io.on('connection', function (socket) {
     io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext });
   }
 
-  function nextTurn(skip) {
-    turn = nextPlayer(turn);
-    if (skip) turn = nextPlayer(turn);
-    console.log(`turn = ${turn}`)
-    io.sockets.emit('turn', turn);
-  }
-
+  //send a log message to all players
   function message(text) {
     console.log(text);
     io.sockets.emit('message', text);
   }
 
-
+  //apply play card and rules
   function playCard(card, uuid, wildColour = null) {
     //apply rules
     //player's turn
@@ -170,16 +182,16 @@ io.on('connection', function (socket) {
 
     //draw two
     if (card.includes('picker')) {
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
     }
 
     //draw four
     if (card.includes('wild_pick')) {
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
-      players[nextPlayer(playerIndex)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+      players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
     }
 
     //skip
@@ -198,15 +210,17 @@ io.on('connection', function (socket) {
     //remove from hand
     players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
 
+    //check for win
+    if (players[playerIndex].hand.length == 0) {
+      message(`${uuidToName(uuid)} won the game`);
+    }
+
     nextTurn(skip);
-    updateState()
+
+    updateState();
     return true;
   }
-
-
 });
-
-
 
 app.use('/', indexRouter);
 
@@ -226,11 +240,13 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-
+//deal the cards
 function deal() {
-  //shuffle to pile
+  //clear the discard pile
   discard = [];
+  //get the deck from the pile
   pile = [...deck]
+  //randomly sort
   pile.sort(() => Math.random() - 0.5);
   //deal
   players.forEach((player, playerIndex) => {
@@ -239,10 +255,11 @@ function deal() {
     }
     players[playerIndex].hand.sort();
   });
-  //one for the discard?
+  //one for the top of the discard
   //discard.push(pile.pop());
 }
 
+//remove all cards from hands
 function clearHands() {
   players.forEach((player, playerIndex) => {
     for (let i = 0; i < 7; i++) {
@@ -251,9 +268,9 @@ function clearHands() {
   });
 }
 
-
-function nextPlayer(playerIndex) {
-  if (!reverseDirection) {
+//work out which player is next under certain conditions
+function nextPlayer(playerIndex, reverse = false) {
+  if (!reverse) {
     return playerIndex = (playerIndex + 1) % players.length;
   } else {
     let newindex = (playerIndex - 1);
@@ -263,6 +280,15 @@ function nextPlayer(playerIndex) {
 
 }
 
+//apply the next turn
+function nextTurn(skip) {
+  turn = nextPlayer(turn, reverseDirection);
+  if (skip) turn = nextPlayer(turn, reverseDirection);
+  console.log(`turn = ${turn}`)
+  io.sockets.emit('turn', turn);
+}
+
+//convert a uuid to a friendly name
 function uuidToName(uuid) {
   let name = '';
   let index = 0;
