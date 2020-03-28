@@ -53,7 +53,7 @@ var reverseDirection = false;
 var prevWildColour = null;
 var dealer = 0;
 var inProgress = false;
-var challengeEnabled = false;
+var challengeEnabled = false; 
 
 //open a socket
 io.on('connection', function (socket) {
