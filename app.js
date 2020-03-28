@@ -47,6 +47,9 @@ var prevWildColour = null;
 var dealer = 0;
 var inProgress = false;
 var challengeEnabled = false;
+var picktwoEnabled = false;
+var pickupAmount = 0;
+var slapdownCounter = 0;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -160,6 +163,21 @@ io.on('connection', function (socket) {
     updateState();
   });
 
+  //user plays pick two
+  socket.on('picktwo', function (uuid) {
+	message(`${uuidToName(uuid)} had to pick up - ${pickupAmount} cards` );
+	playerIndex = uuidToIndex(uuid);
+	turn = playerIndex;	
+	for (let pickupIndex = 0; pickupIndex < pickupAmount; pickupIndex++) {
+		players[playerIndex].hand.push(pile.pop());
+		checkPile();
+    }
+	pickupAmount = 0;
+	picktwoEnabled = false;
+	nextTurn(false);
+	updateState();
+  });
+  
   //reset the game
   socket.on('reset', function (uuid) {
     message(`${uuidToName(uuid)} reset the game`);
@@ -174,6 +192,9 @@ io.on('connection', function (socket) {
     dealer = 0;
     inProgress = false;
     challengeEnabled = false;
+    picktwoEnabled = false;
+	slapdownCounter = 0;
+	pickupAmount = 0;
   });
 });
 
@@ -232,7 +253,7 @@ function updateState() {
   updateAllPlayers();
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = `Player ${turn + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress, challengeEnabled });
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled });
 }
 
 //send a log message to all players
@@ -267,9 +288,16 @@ function playCard(card, uuid, wildColour = null) {
   //apply rules
   //player's turn
   let playerIndex = null;
-  if (players[turn].uuid != uuid) {
+   
+  if ((players[turn].uuid != uuid)) {
     message(`${uuidToName(uuid)} - played out of turn`);
-    return false;
+	if (isSlapdown(card)) {
+		message(`${uuidToName(uuid)} - played a slapdown!`);
+		playerIndex = uuidToIndex(uuid);
+		turn = playerIndex;	
+	} else {
+		return false;
+	}
   } else {
     playerIndex = turn;
   }
@@ -298,10 +326,12 @@ function playCard(card, uuid, wildColour = null) {
 
   //draw two
   if (card.includes('picker')) {
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
+    //players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    //checkPile();
+    //players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
+    //checkPile();
+	pickupAmount = pickupAmount + 2;
+	picktwoEnabled = true;
   }
 
   //draw four
@@ -325,6 +355,10 @@ function playCard(card, uuid, wildColour = null) {
   //reverse
   if (card.includes('reverse')) {
     reverseDirection = !reverseDirection;
+  }
+  
+  if (isSlapdown(card)) {
+	  slapdownCounter++;	
   }
 
   //add card to discard
@@ -350,14 +384,35 @@ function isPlayable(card) {
   let topCard = discard.slice(-1).pop() || ' ';
   let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
   let colours = ['yellow', 'blue', 'red', 'green'];
-  let valid = card.includes('wild') || topCard == ' ';
-  colours.forEach(colour => {
-    cardsets.forEach(cardset => {
-      valid = valid || (topCard.includes(colour) && card.includes(colour))
-        || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
+  let valid = false;
+  if (picktwoEnabled) {
+	  valid = valid || (topCard.includes('picker') && card.includes('picker'));
+  } else {
+	  valid = card.includes('wild') || topCard == ' ';
+		colours.forEach(colour => {
+		cardsets.forEach(cardset => {
+			valid = valid || (topCard.includes(colour) && card.includes(colour))
+				|| (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
     });
   });
+  }
   return valid;
+}
+
+//check if the card is a slapdown 
+function isSlapdown(card) {
+  //same colour and number 
+  let topCard = discard.slice(-1).pop() || ' ';
+  let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
+  let colours = ['yellow', 'blue', 'red', 'green'];
+  let slap = false;
+  colours.forEach(colour => {
+    cardsets.forEach(cardset => {
+      slap = slap || ((topCard.includes(colour) && card.includes(colour))
+        && (topCard.includes(cardset) && card.includes(cardset)));
+    });
+  });
+  return slap;
 }
 
 //check to see if there are plenty of cards in the pile
@@ -394,6 +449,18 @@ function uuidToName(uuid) {
     }
   });
   return name;
+}
+
+//convert a uuid to player index
+function uuidToIndex(uuid) {
+  let index = 0;
+  players.forEach((player, playerIndex) => {
+    if (player.uuid == uuid) {
+      name = player.name;
+      index = playerIndex;
+    }
+  });
+  return index;
 }
 
 module.exports = app;
