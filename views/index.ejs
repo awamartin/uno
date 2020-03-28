@@ -32,6 +32,9 @@
     $("#challenge_but").click(function () {
       socket.emit('challenge', uuid);
     });
+    $("#reset_but").click(function () {
+      socket.emit('reset', uuid);
+    });
 
     //wildcard selections
     $("#red_but").click(function () {
@@ -99,6 +102,10 @@
       $("#messages").prepend(`${text}<br />`)
     });
 
+//force refresh
+socket.on('refresh', text => {
+  location.reload();
+    });
 
     //player status is sent to a socket named as the player's uuid
     socket.on(uuid, player => {
@@ -173,6 +180,7 @@
   <div id="messages">
 
   </div>
+  <button id="reset_but">Reset</button>
 </body>
 
 </html>

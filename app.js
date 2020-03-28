@@ -121,7 +121,7 @@ io.on('connection', function (socket) {
   socket.on('challenge', function (uuid) {
     previousPlayerIndex = nextPlayer(turn, !reverseDirection);
     message(`${uuidToName(uuid)} challenged - ${players[previousPlayerIndex].name}`);
-    
+
     let invalid = false;
     //check if that colour could have been played
     players[previousPlayerIndex].hand.forEach(card => {
@@ -157,7 +157,23 @@ io.on('connection', function (socket) {
       checkPile();
     }
     challengeEnabled = false;
-    updateState()
+    updateState();
+  });
+
+  //reset the game
+  socket.on('reset', function (uuid) {
+    message(`${uuidToName(uuid)} reset the game`);
+    io.sockets.emit('refresh');
+    //init all of the gobals to their default state
+    players = [];
+    discard = [];
+    pile = [];
+    turn = 0;
+    reverseDirection = false;
+    prevWildColour = null;
+    dealer = 0;
+    inProgress = false;
+    challengeEnabled = false;
   });
 });
 
@@ -275,7 +291,7 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('wild')) {
     challengeEnabled = true;
     message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
-  }else {
+  } else {
     challengeEnabled = false;
   }
   prevWildColour = wildColour;
