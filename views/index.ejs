@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs"></script>
 <script type="module">
@@ -16,7 +16,13 @@
   var playedWild = '';
 
   //socket
-  var socket = io('http://localhost:3001');
+  /*
+  var host = $('#externalIp').text();
+  var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  var socketurl = `${webSocketHost}${host}:65080`;
+  console.log(socketurl);
+  */
+  var socket = io();
   socket.on('connect', () => {
     //on socket connection
     console.log(socket.connected);
