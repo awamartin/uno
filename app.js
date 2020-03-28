@@ -140,7 +140,7 @@ io.on('connection', function (socket) {
 
     if (invalid) {
       //play was invalid
-      message(`challenge correct`);
+      message(`challenge succeeded`);
       players[previousPlayerIndex].hand.push(pile.pop());
       checkPile();
       players[previousPlayerIndex].hand.push(pile.pop());
