@@ -3,10 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var socket = require('socket.io')
 var glob = require("glob")
-
-var indexRouter = require('./routes/index');
+var router = express.Router();
 
 var app = express();
 
@@ -22,11 +20,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //express server
 const server = require('http').Server(app);
-const io = socket(server);
-const port = process.env.PORT || 3001
-server.listen(port, () => {
-  console.log('Listening on ' + port)
-})
+const io = require('socket.io')(server);
+if (module === require.main) {
+  const PORT = process.env.PORT || 8080;
+  server.listen(PORT, () => {
+    console.log(`App listening on port ${PORT}`);
+    console.log('Press Ctrl+C to quit.');
+  });
+}
+
+app.use('/', router);
+router.get('/', function (req, res, next) {
+  res.render('index', {});
+});
+
 
 
 //create deck
@@ -177,7 +184,9 @@ io.on('connection', function (socket) {
   });
 });
 
-app.use('/', indexRouter);
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
