@@ -25,3 +25,4 @@ Currently running at http://40.127.69.20:8080/
 - uno button/uno challenge rules
 - deal notifier
 - player score table
+- player joining half way through gets to play with 0/1 pickup cards
