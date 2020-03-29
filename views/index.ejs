@@ -179,8 +179,8 @@ socket.on('refresh', text => {
     UNO Game
   </h1>
   <p>
-    <button id="deal_but">Deal</button>
-    <button id="pick_but" hidden="true">Pick-up</button>
+    <button class="button" id="deal_but">Deal</button>
+    <button class="button" id="pick_but" hidden="true">Pick-up</button>
   </p>
   <div>Your Name: <label id="playerName"></label></div>
   <div>Number of Players: <label id="playerCount"></label></div>
@@ -195,9 +195,9 @@ socket.on('refresh', text => {
   </div>
   <div hidden="true" id="colours"><button class="button blue_but" id="blue_but">Blue</button><button class="button green_but" id="green_but">Green</button><button
       class="button red_but" id="red_but">Red</button><button class="button yellow_but" id="yellow_but">Yellow</button></div>
-  <div hidden="true" id="challenge"><button id="challenge_but">Challenge</button></div>
+  <div hidden="true" id="challenge"><button class="button" id="challenge_but">Challenge</button></div>
   <div hidden="true" id="picktwotext">Pick up: <label id="pickupAmount"></div>
-  <div hidden="true" id="picktwo"><button id="picktwo_but">Pick up</button></div>
+  <div hidden="true" id="picktwo"><button  class="button"id="picktwo_but">Pick up</button></div>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
 
@@ -208,7 +208,7 @@ socket.on('refresh', text => {
   <div id="messages">
 
   </div>
-  <button id="reset_but">Reset</button>
+  <button class="button" id="reset_but">Reset</button>
 </body>
 
 </html>
