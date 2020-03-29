@@ -57,6 +57,7 @@ var drawEnabled = false;
 var drawAmount = 0;
 var slapdownCounter = 0;
 var wildColour = ' ';
+var currentColour = ' ';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -227,6 +228,7 @@ io.on('connection', function (socket) {
     slapdownCounter = 0;
     drawAmount = 0;
     wildColour = ' ';
+    currentColour = ' ';
   });
 });
 
@@ -266,26 +268,32 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
+
   discard.push(pile.pop());
-	let topCard = discard.slice(-1).pop()
+  let topCard = discard.slice(-1).pop()
+  if (!topCard.includes('wild')) {
+	currentColour = colouredCard(topCard);
+  }
+  
+  prevWildColour = wildColour;  
+  
   //draw two
   if (topCard.includes('picker')) {
     drawAmount = drawAmount + 2;
     drawEnabled = true;
-  }
-
-  //draw four
   if (topCard.includes('wild_pick')) {
+  }
+  //draw four
+
     drawAmount = 4;
     drawEnabled = true;
   }
 
-  //skip
   let skip = false;
   if (topCard.includes('skip')) {
+  //skip
     skip = true;
   }
-
   //reverse
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
@@ -324,7 +332,8 @@ function updateState() {
     drawAmount: drawAmount,
     drawEnabled,
     wildColour,
-    reverseDirection
+    reverseDirection,
+	currentColour
   });
 }
 
@@ -397,10 +406,10 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('wild')) {
     challengeEnabled = true;
     message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
+	currentColour = wildColour;
   } else {
     challengeEnabled = false;
   }
-  prevWildColour = wildColour;
 
   //draw two
   if (card.includes('picker')) {
@@ -428,6 +437,11 @@ function playCard(card, uuid, wildColour = null) {
   if (isSlapdown(card)) {
     slapdownCounter++;
   }
+  
+  if (!card.includes('wild')) {
+	currentColour = colouredCard(card);
+  }
+  prevWildColour = currentColour;
 
   //add card to discard
   discard.push(card);
@@ -445,6 +459,21 @@ function playCard(card, uuid, wildColour = null) {
   updateState();
   return true;
 }
+
+function colouredCard(card) {
+  colour = ' ';
+  if (card.includes('yellow')) {
+	colour = 'yellow';
+  } else if (card.includes('red')) {
+	colour = 'red';
+  } else if (card.includes('blue')) {
+	colour = 'blue';
+  } else if (card.includes('green')) {
+	colour = 'green';
+  } 
+  return colour;
+}
+
 
 //check if the card is playable
 function isPlayable(card) {

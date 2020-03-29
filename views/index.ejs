@@ -76,7 +76,7 @@
       let inProgress = data.inProgress;
       let challengeEnabled = data.challengeEnabled;
       let drawEnabled = data.drawEnabled;
-      let wildColour = data.wildColour;
+      let currentColour = data.currentColour;
       let reverseDirection = data.reverseDirection;
 
       console.log(data);
@@ -86,7 +86,7 @@
       $("#discardCount").text(discardCount);
       $("#slapdownCount").text(slapdownCount);
       $("#drawAmount").text(drawAmount);
-      $("#wildColour").text(wildColour);
+      $("#currentColour").text(currentColour);
       $("#reverseDirection").text(reverseDirection);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
@@ -243,7 +243,7 @@
           <div>Number of Players: <label id="playerCount"></label></div>
         </td>
         <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div>
+          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="currentColour"></strong></div>
         </td>
       </tr>
       <tr style="height: 16px;">
@@ -258,7 +258,7 @@
         <td style="width: 250px; height: 16px;">
           <div>Cards in Pile: <label id="pileCount"></label></div>
         </td>
-        <td style="width: 450px; height: 16px;"></td>
+        <td style="width: 450px; height: 16px;"><div hidden="true" id="clockwise"><strong>Clockwise</strong></div><div hidden="true" id="anticlockwise"><strong>Anti-Clockwise</strong></div></td>
       </tr>
       <tr style="height: 16px;">
         <td style="width: 250px; height: 16px;">
