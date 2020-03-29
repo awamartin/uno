@@ -4,11 +4,11 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 .cards {
-font-size:140px;
+  font-size: 140px;
 }
 
 .button {
@@ -23,7 +23,18 @@ font-size:140px;
   cursor: pointer;
 }
 
-.blue_but {background-color: #008CBA; color: white;} /* Blue */
-.red_but {background-color: #f44336; color: white;} /* Red */ 
-.green_but {background-color: #4CAF50; color: white;} /* Green */
-.yellow_but {background-color: yellow;} /* Yellow */
+.blue_but {
+  background-color: #008cba;
+  color: white;
+} /* Blue */
+.red_but {
+  background-color: #f44336;
+  color: white;
+} /* Red */
+.green_but {
+  background-color: #4caf50;
+  color: white;
+} /* Green */
+.yellow_but {
+  background-color: yellow;
+} /* Yellow */
