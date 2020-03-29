@@ -245,27 +245,27 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
+  //reverse
   discard.push(pile.pop());
 	let topCard = discard.slice(-1).pop()
   //draw two
   if (topCard.includes('picker')) {
     drawAmount = drawAmount + 2;
     drawEnabled = true;
-  }
-
-  //draw four
   if (topCard.includes('wild_pick')) {
+  }
+  //draw four
+
     drawAmount = 4;
     drawEnabled = true;
   }
 
-  //skip
   let skip = false;
   if (topCard.includes('skip')) {
+  //skip
     skip = true;
-  }
 
-  //reverse
+  }
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
