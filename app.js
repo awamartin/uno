@@ -136,7 +136,8 @@ io.on('connection', function (socket) {
     message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
-      prevWildColour = wildColour;
+      currentColour = wildColour;
+	  prevWildColour = wildColour;
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -284,6 +285,8 @@ function deal() {
   let topCard = discard.slice(-1).pop()
   if (!topCard.includes('wild')) {
 	currentColour = colouredCard(topCard);
+  } else {
+	// Choose colour
   }
   
   prevWildColour = wildColour;  
@@ -292,27 +295,30 @@ function deal() {
   if (topCard.includes('picker')) {
     drawAmount = drawAmount + 2;
     drawEnabled = true;
-  if (topCard.includes('wild_pick')) {
   }
+  
   //draw four
-
-    drawAmount = 4;
-    drawEnabled = true;
+  if (topCard.includes('wild_pick')) {
+	drawAmount = 4;
+	drawEnabled = true;
   }
 
+  //skip
   let skip = false;
   if (topCard.includes('skip')) {
-  //skip
     skip = true;
   }
+
   //reverse
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
 	
+	
+  nextTurn(skip);
 
   inProgress = true;
-  turn = nextPlayer(dealer);
+  //turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
  
