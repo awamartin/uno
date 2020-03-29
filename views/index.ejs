@@ -77,6 +77,7 @@
       let challengeEnabled = data.challengeEnabled;
       let drawEnabled = data.drawEnabled;
       let wildColour = data.wildColour;
+	  let reverseDirection = data.reverseDirection;
 
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
@@ -86,6 +87,7 @@
       $("#slapdownCount").text(slapdownCount);
       $("#drawAmount").text(drawAmount);
       $("#wildColour").text(wildColour);
+      $("#reverseDirection").text(reverseDirection);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
       //toggle deal and pickup
@@ -126,13 +128,20 @@
       if (inProgress) {
         $("#yourdeal").hide();
         $("#currentcolour").show();
+		  //Reverse Direction
+		  if (reverseDirection) {
+			$("#clockwise").hide();
+			$("#anticlockwise").show();
+		  } else {
+			$("#clockwise").show();
+			$("#anticlockwise").hide();
+		  }
       } else {
         $("#currentcolour").hide();
         if (dealerNext == $("#playerName").text()) {
-          $("#yourdeal").show();
-        } else {
-          $("#yourdeal").hide();
-        }
+        $("#yourdeal").show();
+      } else {
+        $("#yourdeal").hide();
       }
       //show Your Turn text
       if (inProgress && (playerNext == $("#playerName").text())) {
@@ -140,6 +149,7 @@
       } else {
         $("#yourturn").hide();
       }
+
     });
 
     //log message
@@ -209,44 +219,38 @@
     <button class="button" id="pick_but" hidden="true">Pick-up</button>
   </p>
   <table>
-    <tbody>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Your Name: <label id="playerName"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="yourturn"><strong>Your turn!</strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Number of Players: <label id="playerCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Next Turn: <label id="playerNext"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="yourdeal"><strong>Your deal!</strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Cards in Pile: <label id="pileCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;"></td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Cards in Discard: <label id="discardCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">&nbsp;</td>
-      </tr>
-    </tbody>
+  <tbody>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Your Name: <label id="playerName"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourturn"><strong>Your turn!</strong></div></td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Number of Players: <label id="playerCount"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div></td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Next Turn: <label id="playerNext"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourdeal"><strong>Your deal!</strong></div></td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Cards in Pile: <label id="pileCount"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;"></td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Cards in Discard: <label id="discardCount"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  </tbody>
   </table>
   <div>&nbsp;</div>
   <div>The Discard Pile:</div>
