@@ -119,6 +119,12 @@
         $("#picktwo").hide();
         $("#picktwotext").hide();
       }
+	  //show Your Turn text
+      if (playerNext == $("#playerName").text()) {
+        $("#yourturn").show();
+      } else {
+        $("#yourturn").hide();
+      }
     });
 
     //log message
@@ -188,7 +194,7 @@ socket.on('refresh', text => {
   <td style="width: 250px; height: 16px;">
   <div>Your Name: <label id="playerName"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourturn"><strong>Your turn!</strong></div></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
