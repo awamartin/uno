@@ -53,8 +53,8 @@ var prevWildColour = null;
 var dealer = 0;
 var inProgress = false;
 var challengeEnabled = false;
-var picktwoEnabled = false;
-var pickupAmount = 0;
+var drawEnabled = false;
+var drawAmount = 0;
 var slapdownCounter = 0;
 var wildColour = ' ';
 
@@ -123,7 +123,12 @@ io.on('connection', function (socket) {
     let card = data.card;
     wildColour = data.wildColour;
     message(`${uuidToName(uuid)} played card - ${card}`);
-    playCard(card, uuid, wildColour);
+    if (card == 'challenge') {
+      prevWildColour = wildColour;
+      updateState();
+    } else {
+      playCard(card, uuid, wildColour);
+    }
 
   });
 
@@ -150,14 +155,10 @@ io.on('connection', function (socket) {
         checkPile();
         players[previousPlayerIndex].hand.push(pile.pop());
         checkPile();
-        pile.push(players[turn].hand.pop());
-        pile.push(players[turn].hand.pop());
-        pile.push(players[turn].hand.pop());
-        pile.push(players[turn].hand.pop());
       }
 
-      //reshuffle the deck since we unplayed some cards
-      pile.sort(() => Math.random() - 0.5);
+      //this player now chooses the colour
+      socket.emit('rechooseColour');
 
     } else {
       message(`challenge failed`);
@@ -167,20 +168,21 @@ io.on('connection', function (socket) {
       checkPile();
     }
     challengeEnabled = false;
+    drawEnabled = false;
     updateState();
   });
 
   //user plays pick two
-  socket.on('picktwo', function (uuid) {
-    message(`${uuidToName(uuid)} had to pick up - ${pickupAmount} cards`);
+  socket.on('drawCard', function (uuid) {
+    message(`${uuidToName(uuid)} had to pick up - ${drawAmount} cards`);
     playerIndex = uuidToIndex(uuid);
     turn = playerIndex;
-    for (let pickupIndex = 0; pickupIndex < pickupAmount; pickupIndex++) {
+    for (let drawIndex = 0; drawIndex < drawAmount; drawIndex++) {
       players[playerIndex].hand.push(pile.pop());
       checkPile();
     }
-    pickupAmount = 0;
-    picktwoEnabled = false;
+    drawAmount = 0;
+    drawEnabled = false;
     nextTurn(false);
     updateState();
   });
@@ -199,9 +201,9 @@ io.on('connection', function (socket) {
     dealer = 0;
     inProgress = false;
     challengeEnabled = false;
-    picktwoEnabled = false;
+    drawEnabled = false;
     slapdownCounter = 0;
-    pickupAmount = 0;
+    drawAmount = 0;
   });
 });
 
@@ -241,7 +243,7 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
-	//handle +2, +4, wild for first player
+  //handle +2, +4, wild for first player
   discard.push(pile.pop());
   inProgress = true;
   turn = nextPlayer(dealer);
@@ -263,7 +265,7 @@ function updateState() {
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = `Player ${turn + 1}`;
   let dealerNext = `Player ${dealer + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, dealerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled, wildColour });
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, dealerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, drawAmount: drawAmount, drawEnabled, wildColour });
 }
 
 //send a log message to all players
@@ -312,6 +314,12 @@ function playCard(card, uuid, wildColour = null) {
     playerIndex = turn;
   }
 
+  //player must draw or challenge
+  if (challengeEnabled && drawEnabled) {
+    message(`${uuidToName(uuid)} - tried to play a card but needs to pickup or challenge`);
+    return false;
+  }
+
   //player has card
   if (players[playerIndex].hand.indexOf(card) < 0) {
     message(`${uuidToName(uuid)} - does not have a ${card}`);
@@ -336,24 +344,14 @@ function playCard(card, uuid, wildColour = null) {
 
   //draw two
   if (card.includes('picker')) {
-    //players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    //checkPile();
-    //players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    //checkPile();
-    pickupAmount = pickupAmount + 2;
-    picktwoEnabled = true;
+    drawAmount = drawAmount + 2;
+    drawEnabled = true;
   }
 
   //draw four
   if (card.includes('wild_pick')) {
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
-    players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
-    checkPile();
+    drawAmount = 4;
+    drawEnabled = true;
   }
 
   //skip
@@ -395,7 +393,7 @@ function isPlayable(card) {
   let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
   let colours = ['yellow', 'blue', 'red', 'green'];
   let valid = false;
-  if (picktwoEnabled) {
+  if (drawEnabled) {
     valid = valid || (topCard.includes('picker') && card.includes('picker'));
   } else {
     valid = card.includes('wild') || topCard == ' ';

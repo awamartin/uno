@@ -38,8 +38,8 @@
     $("#challenge_but").click(function () {
       socket.emit('challenge', uuid);
     });
-    $("#picktwo_but").click(function () {
-      socket.emit('picktwo', uuid);
+    $("#drawCard_but").click(function () {
+      socket.emit('drawCard', uuid);
     });
     $("#reset_but").click(function () {
       socket.emit('reset', uuid);
@@ -69,14 +69,14 @@
       let pileCount = data.pileCount;
       let discardCount = data.discardCount;
       let slapdownCount = data.slapdownCount;
-      let pickupAmount = data.pickupAmount;
+      let drawAmount = data.drawAmount;
       let playerNext = data.playerNext;
       let dealerNext = data.dealerNext;
       let playerCount = data.playerCount;
       let inProgress = data.inProgress;
       let challengeEnabled = data.challengeEnabled;
-      let picktwoEnabled = data.picktwoEnabled;
-	  let wildColour = data.wildColour;
+      let drawEnabled = data.drawEnabled;
+      let wildColour = data.wildColour;
 
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
@@ -84,7 +84,7 @@
       $("#dealerNext").text(dealerNext);
       $("#discardCount").text(discardCount);
       $("#slapdownCount").text(slapdownCount);
-      $("#pickupAmount").text(pickupAmount);
+      $("#drawAmount").text(drawAmount);
       $("#wildColour").text(wildColour);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
@@ -94,8 +94,8 @@
         $("#pick_but").show();
       } else {
         $("#challenge").hide();
-        $("#picktwotext").hide();
-        $("#picktwo").hide();
+        $("#drawCardtext").hide();
+        $("#drawCard").hide();
         $("#deal_but").show();
         $("#pick_but").hide();
       }
@@ -114,27 +114,27 @@
       } else {
         $("#challenge").hide();
       }
-	  //show picktwo buttons
-      if (picktwoEnabled && (playerNext == $("#playerName").text())) {
-        $("#picktwo").show();
-        $("#picktwotext").show();
+      //show drawCard buttons
+      if (drawEnabled && (playerNext == $("#playerName").text())) {
+        $("#drawCard").show();
+        $("#drawCardtext").show();
       } else {
-        $("#picktwo").hide();
-        $("#picktwotext").hide();
+        $("#drawCard").hide();
+        $("#drawCardtext").hide();
       }
-	  //show Your Deal text
+      //show Your Deal text
       if (inProgress) {
         $("#yourdeal").hide();
         $("#currentcolour").show();
       } else {
-        $("#currentcolour").hide();	  
+        $("#currentcolour").hide();
         if (dealerNext == $("#playerName").text()) {
-        $("#yourdeal").show();
-      } else {
-        $("#yourdeal").hide();
+          $("#yourdeal").show();
+        } else {
+          $("#yourdeal").hide();
+        }
       }
-      }
-	  //show Your Turn text
+      //show Your Turn text
       if (inProgress && (playerNext == $("#playerName").text())) {
         $("#yourturn").show();
       } else {
@@ -148,9 +148,14 @@
       $("#messages").prepend(`${text}<br />`)
     });
 
-//force refresh
-socket.on('refresh', text => {
-  location.reload();
+    //force refresh
+    socket.on('refresh', text => {
+      location.reload();
+    });
+
+    socket.on('rechooseColour',() => {
+      playedWild = 'challenge';
+      $("#colours").show();
     });
 
     //player status is sent to a socket named as the player's uuid
@@ -204,49 +209,56 @@ socket.on('refresh', text => {
     <button class="button" id="pick_but" hidden="true">Pick-up</button>
   </p>
   <table>
-  <tbody>
-  <tr style="height: 16px;">
-  <td style="width: 250px; height: 16px;">
-  <div>Your Name: <label id="playerName"></label></div>
-  </td>
-  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourturn"><strong>Your turn!</strong></div></td>
-  </tr>
-  <tr style="height: 16px;">
-  <td style="width: 250px; height: 16px;">
-  <div>Number of Players: <label id="playerCount"></label></div>
-  </td>
-  <td style="width: 450px; height: 16px;"><div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div></td>
-  </tr>
-  <tr style="height: 16px;">
-  <td style="width: 250px; height: 16px;">
-  <div>Next Turn: <label id="playerNext"></label></div>
-  </td>
-  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourdeal"><strong>Your deal!</strong></div></td>
-  </tr>
-  <tr style="height: 16px;">
-  <td style="width: 250px; height: 16px;">
-  <div>Cards in Pile: <label id="pileCount"></label></div>
-  </td>
-  <td style="width: 450px; height: 16px;"></td>
-  </tr>
-  <tr style="height: 16px;">
-  <td style="width: 250px; height: 16px;">
-  <div>Cards in Discard: <label id="discardCount"></label></div>
-  </td>
-  <td style="width: 450px; height: 16px;">&nbsp;</td>
-  </tr>
-  </tbody>
+    <tbody>
+      <tr style="height: 16px;">
+        <td style="width: 250px; height: 16px;">
+          <div>Your Name: <label id="playerName"></label></div>
+        </td>
+        <td style="width: 450px; height: 16px;">
+          <div hidden="true" id="yourturn"><strong>Your turn!</strong></div>
+        </td>
+      </tr>
+      <tr style="height: 16px;">
+        <td style="width: 250px; height: 16px;">
+          <div>Number of Players: <label id="playerCount"></label></div>
+        </td>
+        <td style="width: 450px; height: 16px;">
+          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div>
+        </td>
+      </tr>
+      <tr style="height: 16px;">
+        <td style="width: 250px; height: 16px;">
+          <div>Next Turn: <label id="playerNext"></label></div>
+        </td>
+        <td style="width: 450px; height: 16px;">
+          <div hidden="true" id="yourdeal"><strong>Your deal!</strong></div>
+        </td>
+      </tr>
+      <tr style="height: 16px;">
+        <td style="width: 250px; height: 16px;">
+          <div>Cards in Pile: <label id="pileCount"></label></div>
+        </td>
+        <td style="width: 450px; height: 16px;"></td>
+      </tr>
+      <tr style="height: 16px;">
+        <td style="width: 250px; height: 16px;">
+          <div>Cards in Discard: <label id="discardCount"></label></div>
+        </td>
+        <td style="width: 450px; height: 16px;">&nbsp;</td>
+      </tr>
+    </tbody>
   </table>
   <div>&nbsp;</div>
   <div>The Discard Pile:</div>
   <div id="discard" class="cards">
     <label id="discardTop"></label>
   </div>
-  <div hidden="true" id="colours"><button class="button blue_but" id="blue_but">Blue</button><button class="button green_but" id="green_but">Green</button><button
-      class="button red_but" id="red_but">Red</button><button class="button yellow_but" id="yellow_but">Yellow</button></div>
+  <div hidden="true" id="colours"><button class="button blue_but" id="blue_but">Blue</button><button
+      class="button green_but" id="green_but">Green</button><button class="button red_but"
+      id="red_but">Red</button><button class="button yellow_but" id="yellow_but">Yellow</button></div>
   <div hidden="true" id="challenge"><button class="button" id="challenge_but">Challenge</button></div>
-  <div hidden="true" id="picktwotext">Pick up: <label id="pickupAmount"></div>
-  <div hidden="true" id="picktwo"><button  class="button"id="picktwo_but">Pick up</button></div>
+  <div hidden="true" id="drawCardtext">Pick up: <label id="drawAmount"></div>
+  <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Pick up</button></div>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
 
