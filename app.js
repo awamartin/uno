@@ -243,8 +243,20 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
-  //handle +2, +4, wild for first player
   discard.push(pile.pop());
+	let topCard = discard.slice(-1).pop()
+  // handle 0-9
+	// set colour
+	
+	// handle + 2
+	
+	// handle + 4
+	
+	// handle skip
+	
+	//handle reverse
+	
+
   inProgress = true;
   turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
