@@ -263,7 +263,7 @@ function updateState() {
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = `Player ${turn + 1}`;
   let dealerNext = `Player ${dealer + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, dealerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled, wildColour });
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, dealerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled, wildColour, reverseDirection });
 }
 
 //send a log message to all players

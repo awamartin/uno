@@ -77,6 +77,7 @@
       let challengeEnabled = data.challengeEnabled;
       let picktwoEnabled = data.picktwoEnabled;
 	  let wildColour = data.wildColour;
+	  let reverseDirection = data.reverseDirection;
 
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
@@ -86,6 +87,7 @@
       $("#slapdownCount").text(slapdownCount);
       $("#pickupAmount").text(pickupAmount);
       $("#wildColour").text(wildColour);
+      $("#reverseDirection").text(reverseDirection);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
       //toggle deal and pickup
@@ -126,12 +128,24 @@
       if (inProgress) {
         $("#yourdeal").hide();
         $("#currentcolour").show();
+		  //Reverse Direction
+		  if (reverseDirection) {
+			$("#clockwise").hide();
+			$("#anticlockwise").show();
+		  } else {
+			$("#clockwise").show();
+			$("#anticlockwise").hide();
+		  }
       } else {
         $("#currentcolour").hide();	  
         if (dealerNext == $("#playerName").text()) {
         $("#yourdeal").show();
+		$("#clockwise").hide();
+		$("#anticlockwise").hide();
       } else {
         $("#yourdeal").hide();
+		$("#clockwise").hide();
+		$("#anticlockwise").hide();
       }
       }
 	  //show Your Turn text
@@ -140,6 +154,7 @@
       } else {
         $("#yourturn").hide();
       }
+
     });
 
     //log message
@@ -227,7 +242,7 @@ socket.on('refresh', text => {
   <td style="width: 250px; height: 16px;">
   <div>Cards in Pile: <label id="pileCount"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;"></td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="clockwise"><strong>Clockwise</strong></div><div hidden="true" id="anticlockwise"><strong>Anti-Clockwise</strong></div></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
