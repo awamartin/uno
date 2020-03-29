@@ -10,3 +10,20 @@ a {
 .cards {
 font-size:140px;
 }
+
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.blue_but {background-color: #008CBA;} /* Blue */
+.red_but {background-color: #f44336;} /* Red */ 
+.green_but {background-color: #4CAF50;} /* Green */
+.yellow_but {background-color: yellow; color: black;} /* Yellow */
