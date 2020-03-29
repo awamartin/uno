@@ -247,16 +247,28 @@ function deal() {
   //one for the top of the discard
   discard.push(pile.pop());
 	let topCard = discard.slice(-1).pop()
-  // handle 0-9
-	// set colour
-	
-	// handle + 2
-	
-	// handle + 4
-	
-	// handle skip
-	
-	//handle reverse
+  //draw two
+  if (topCard.includes('picker')) {
+    drawAmount = drawAmount + 2;
+    drawEnabled = true;
+  }
+
+  //draw four
+  if (topCard.includes('wild_pick')) {
+    drawAmount = 4;
+    drawEnabled = true;
+  }
+
+  //skip
+  let skip = false;
+  if (topCard.includes('skip')) {
+    skip = true;
+  }
+
+  //reverse
+  if (topCard.includes('reverse')) {
+    reverseDirection = !reverseDirection;
+  }
 	
 
   inProgress = true;
