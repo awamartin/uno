@@ -240,8 +240,8 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
+	//handle +2, +4, wild for first player
   discard.push(pile.pop());
-
   inProgress = true;
   turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
