@@ -79,7 +79,7 @@
       let wildColour = data.wildColour;
       let reverseDirection = data.reverseDirection;
 
-      console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
+      console.log(data);
 
       $("#playerNext").text(playerNext);
       $("#dealerNext").text(dealerNext);
@@ -90,17 +90,7 @@
       $("#reverseDirection").text(reverseDirection);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
-      //toggle deal and pickup
-      if (inProgress) {
-        $("#deal_but").hide();
-        $("#pick_but").show();
-      } else {
-        $("#challenge").hide();
-        $("#drawCardtext").hide();
-        $("#drawCard").hide();
-        $("#deal_but").show();
-        $("#pick_but").hide();
-      }
+
       //update discard pile
       $("#discardTop").empty();
       let card = $('<img/>',
@@ -127,6 +117,7 @@
       //show Your Deal text
       if (inProgress) {
         $("#yourdeal").hide();
+        $("#deal_but").hide();
         $("#currentcolour").show();
         //Reverse Direction
         if (reverseDirection) {
@@ -136,20 +127,39 @@
           $("#clockwise").show();
           $("#anticlockwise").hide();
         }
-      } else {
-        $("#currentcolour").hide();
-        if (dealerNext == $("#playerName").text()) {
-          $("#yourdeal").show();
-        } else {
-          $("#yourdeal").hide();
-        }
-      }
         //show Your Turn text
-        if (inProgress && (playerNext == $("#playerName").text())) {
+        if (playerNext == $("#playerName").text()) {
           $("#yourturn").show();
+          $("#pick_but").show();
         } else {
           $("#yourturn").hide();
+          $("#pick_but").hide();
         }
+      } else {
+        $("#challenge").hide();
+        $("#drawCardtext").hide();
+        $("#drawCard").hide();
+        $("#pick_but").hide();
+        $("#currentcolour").hide();
+        $("#yourturn").hide();
+        if (dealerNext == $("#playerName").text()) {
+          $("#yourdeal").show();
+          $("#deal_but").show();
+        } else {
+          $("#yourdeal").hide();
+          $("#deal_but").hide();
+        }
+      }
+
+      console.log(!$('yourturn').is(":hidden"));
+      console.log(discardTop);
+      //handle 1st card colour choice for wild
+      let topCard = discardTop|| '';
+      if (playerNext == $("#playerName").text() && topCard.includes('wild') && wildColour == ' ') {
+    
+        playedWild = 'deal';
+        $("#colours").show();
+      } 
     });
 
     //log message
@@ -279,7 +289,7 @@
   <div id="messages">
 
   </div>
-  <button class="button" id="reset_but">Reset</button>
+  <button class="button" id="reset_but">Reset Game</button>
 </body>
 
 </html>

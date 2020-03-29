@@ -123,8 +123,9 @@ io.on('connection', function (socket) {
     let card = data.card;
     wildColour = data.wildColour;
     message(`${uuidToName(uuid)} played card - ${card}`);
-    if (card == 'challenge') {
+    if (card == 'challenge' || card == 'deal') {
       prevWildColour = wildColour;
+      message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -204,6 +205,7 @@ io.on('connection', function (socket) {
     drawEnabled = false;
     slapdownCounter = 0;
     drawAmount = 0;
+    wildColour = ' ';
   });
 });
 
@@ -261,6 +263,7 @@ function deal() {
   turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
+ 
 }
 
 //send state to all players
@@ -275,9 +278,21 @@ function updateAllPlayers() {
 function updateState() {
   updateAllPlayers();
   let discardTop = discard.slice(-1).pop() || ' ';
-  let playerNext = `Player ${turn + 1}`;
-  let dealerNext = `Player ${dealer + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, dealerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, drawAmount: drawAmount, drawEnabled, wildColour, reverseDirection });
+  let playerNext = players[turn].name;
+  let dealerNext = players[dealer].name;
+  io.sockets.emit('state', {
+    discardTop,
+    discardCount: discard.length,
+    pileCount: pile.length,
+    playerNext, dealerNext,
+    playerCount: players.length,
+    inProgress, challengeEnabled,
+    slapdownCount: slapdownCounter,
+    drawAmount: drawAmount,
+    drawEnabled,
+    wildColour,
+    reverseDirection
+  });
 }
 
 //send a log message to all players
