@@ -130,7 +130,11 @@
         //show Your Turn text
         if (playerNext == $("#playerName").text()) {
           $("#yourturn").show();
-          $("#pick_but").show();
+		  if(!drawEnabled) {
+			$("#pick_but").show();
+			} else {
+			$("#pick_but").hide();			
+			}			
         } else {
           $("#yourturn").hide();
           $("#pick_but").hide();
