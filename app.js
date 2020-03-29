@@ -109,6 +109,7 @@ io.on('connection', function (socket) {
       players[turn].hand.push(pickupCard);
       //check if the player can put it down straight away
       if (!isPlayable(pickupCard)) nextTurn();
+ 
       updateState()
     }
     else {
@@ -206,6 +207,7 @@ io.on('connection', function (socket) {
     }
     drawAmount = 0;
     drawEnabled = false;
+    challengeEnabled = false;
     nextTurn(false);
     updateState();
   });
