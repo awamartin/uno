@@ -18,7 +18,7 @@ Currently running at http://40.127.69.20:8080/
 
 # To Do
 
-- reverse/skip on deal dont do anything, +2 on draw seems to give next player + 4
+- wild on start, present colour choice to second player
 - customisable player names - AM
 - uno button/uno challenge rules - CC
 - player score table
