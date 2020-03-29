@@ -240,7 +240,7 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
-  //discard.push(pile.pop());
+  discard.push(pile.pop());
 
   inProgress = true;
   turn = nextPlayer(dealer);
