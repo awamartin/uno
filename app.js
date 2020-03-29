@@ -21,13 +21,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 //express server
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-if (module === require.main) {
-  const PORT = process.env.PORT || 8080;
-  server.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
-    console.log('Press Ctrl+C to quit.');
-  });
-}
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+  console.log('Press Ctrl+C to quit.');
+});
+
 
 app.use('/', router);
 router.get('/', function (req, res, next) {
@@ -172,19 +171,19 @@ io.on('connection', function (socket) {
 
   //user plays pick two
   socket.on('picktwo', function (uuid) {
-	message(`${uuidToName(uuid)} had to pick up - ${pickupAmount} cards` );
-	playerIndex = uuidToIndex(uuid);
-	turn = playerIndex;	
-	for (let pickupIndex = 0; pickupIndex < pickupAmount; pickupIndex++) {
-		players[playerIndex].hand.push(pile.pop());
-		checkPile();
+    message(`${uuidToName(uuid)} had to pick up - ${pickupAmount} cards`);
+    playerIndex = uuidToIndex(uuid);
+    turn = playerIndex;
+    for (let pickupIndex = 0; pickupIndex < pickupAmount; pickupIndex++) {
+      players[playerIndex].hand.push(pile.pop());
+      checkPile();
     }
-	pickupAmount = 0;
-	picktwoEnabled = false;
-	nextTurn(false);
-	updateState();
+    pickupAmount = 0;
+    picktwoEnabled = false;
+    nextTurn(false);
+    updateState();
   });
-  
+
   //reset the game
   socket.on('reset', function (uuid) {
     message(`${uuidToName(uuid)} reset the game`);
@@ -200,8 +199,8 @@ io.on('connection', function (socket) {
     inProgress = false;
     challengeEnabled = false;
     picktwoEnabled = false;
-	slapdownCounter = 0;
-	pickupAmount = 0;
+    slapdownCounter = 0;
+    pickupAmount = 0;
   });
 });
 
@@ -241,7 +240,7 @@ function deal() {
     players[playerIndex].hand.sort();
   });
   //one for the top of the discard
-  //discard.push(pile.pop());
+  discard.push(pile.pop());
 
   inProgress = true;
   turn = nextPlayer(dealer);
@@ -297,16 +296,16 @@ function playCard(card, uuid, wildColour = null) {
   //apply rules
   //player's turn
   let playerIndex = null;
-   
+
   if ((players[turn].uuid != uuid)) {
     message(`${uuidToName(uuid)} - played out of turn`);
-	if (isSlapdown(card)) {
-		message(`${uuidToName(uuid)} - played a slapdown!`);
-		playerIndex = uuidToIndex(uuid);
-		turn = playerIndex;	
-	} else {
-		return false;
-	}
+    if (isSlapdown(card)) {
+      message(`${uuidToName(uuid)} - played a slapdown!`);
+      playerIndex = uuidToIndex(uuid);
+      turn = playerIndex;
+    } else {
+      return false;
+    }
   } else {
     playerIndex = turn;
   }
@@ -339,8 +338,8 @@ function playCard(card, uuid, wildColour = null) {
     //checkPile();
     //players[nextPlayer(playerIndex, reverseDirection)].hand.push(pile.pop());
     //checkPile();
-	pickupAmount = pickupAmount + 2;
-	picktwoEnabled = true;
+    pickupAmount = pickupAmount + 2;
+    picktwoEnabled = true;
   }
 
   //draw four
@@ -365,9 +364,9 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
-  
+
   if (isSlapdown(card)) {
-	  slapdownCounter++;	
+    slapdownCounter++;
   }
 
   //add card to discard
@@ -395,15 +394,15 @@ function isPlayable(card) {
   let colours = ['yellow', 'blue', 'red', 'green'];
   let valid = false;
   if (picktwoEnabled) {
-	  valid = valid || (topCard.includes('picker') && card.includes('picker'));
+    valid = valid || (topCard.includes('picker') && card.includes('picker'));
   } else {
-	  valid = card.includes('wild') || topCard == ' ';
-		colours.forEach(colour => {
-		cardsets.forEach(cardset => {
-			valid = valid || (topCard.includes(colour) && card.includes(colour))
-				|| (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
+    valid = card.includes('wild') || topCard == ' ';
+    colours.forEach(colour => {
+      cardsets.forEach(cardset => {
+        valid = valid || (topCard.includes(colour) && card.includes(colour))
+          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
+      });
     });
-  });
   }
   return valid;
 }
