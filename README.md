@@ -20,7 +20,7 @@ Currently running at http://40.127.69.20:8080/
 
 - reverse/skip on deal dont do anything, +2 on draw seems to give next player + 4
 - customisable player names - AM
-- uno button/uno challenge rules
+- uno button/uno challenge rules - CC
 - player score table
 - player joining half way through gets to play with 0/1 pickup cards
 - reset should be hidden unless in debug mode, it's currently unclear that this resets the game and not just the log
