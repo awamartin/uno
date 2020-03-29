@@ -38,3 +38,7 @@ a {
 .yellow_but {
   background-color: yellow;
 } /* Yellow */
+
+div.c {
+  text-transform: capitalize;
+}

@@ -75,7 +75,7 @@
       let inProgress = data.inProgress;
       let challengeEnabled = data.challengeEnabled;
       let picktwoEnabled = data.picktwoEnabled;
-      let picktwoAmount = data.picktwoAmount;
+	  let wildColour = data.wildColour;
 
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
@@ -83,6 +83,7 @@
       $("#discardCount").text(discardCount);
       $("#slapdownCount").text(slapdownCount);
       $("#pickupAmount").text(pickupAmount);
+      $("#wildColour").text(wildColour);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
       //toggle deal and pickup
@@ -200,7 +201,7 @@ socket.on('refresh', text => {
   <td style="width: 250px; height: 16px;">
   <div>Number of Players: <label id="playerCount"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  <td style="width: 450px; height: 16px;"><div class="c"><strong>Current Colour: <label id="wildColour"></strong></div></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
