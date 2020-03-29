@@ -71,6 +71,7 @@
       let slapdownCount = data.slapdownCount;
       let pickupAmount = data.pickupAmount;
       let playerNext = data.playerNext;
+      let dealerNext = data.dealerNext;
       let playerCount = data.playerCount;
       let inProgress = data.inProgress;
       let challengeEnabled = data.challengeEnabled;
@@ -80,6 +81,7 @@
       console.log(`state topcard - ${discardTop}, pilecount - ${pileCount}, discardCount - ${discardCount}, next Turn - ${playerNext}, playerCount - ${playerCount}`);
 
       $("#playerNext").text(playerNext);
+      $("#dealerNext").text(dealerNext);
       $("#discardCount").text(discardCount);
       $("#slapdownCount").text(slapdownCount);
       $("#pickupAmount").text(pickupAmount);
@@ -120,8 +122,20 @@
         $("#picktwo").hide();
         $("#picktwotext").hide();
       }
+	  //show Your Deal text
+      if (inProgress) {
+        $("#yourdeal").hide();
+        $("#currentcolour").show();
+      } else {
+        $("#currentcolour").hide();	  
+        if (dealerNext == $("#playerName").text()) {
+        $("#yourdeal").show();
+      } else {
+        $("#yourdeal").hide();
+      }
+      }
 	  //show Your Turn text
-      if (playerNext == $("#playerName").text()) {
+      if (inProgress && (playerNext == $("#playerName").text())) {
         $("#yourturn").show();
       } else {
         $("#yourturn").hide();
@@ -201,19 +215,19 @@ socket.on('refresh', text => {
   <td style="width: 250px; height: 16px;">
   <div>Number of Players: <label id="playerCount"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;"><div class="c"><strong>Current Colour: <label id="wildColour"></strong></div></td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="wildColour"></strong></div></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
   <div>Next Turn: <label id="playerNext"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  <td style="width: 450px; height: 16px;"><div hidden="true" id="yourdeal"><strong>Your deal!</strong></div></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
   <div>Cards in Pile: <label id="pileCount"></label></div>
   </td>
-  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  <td style="width: 450px; height: 16px;"></td>
   </tr>
   <tr style="height: 16px;">
   <td style="width: 250px; height: 16px;">
