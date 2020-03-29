@@ -56,6 +56,7 @@ var challengeEnabled = false;
 var picktwoEnabled = false;
 var pickupAmount = 0;
 var slapdownCounter = 0;
+var wildColour = ' ';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -120,7 +121,7 @@ io.on('connection', function (socket) {
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
-    let wildColour = data.wildColour;
+    wildColour = data.wildColour;
     message(`${uuidToName(uuid)} played card - ${card}`);
     playCard(card, uuid, wildColour);
 
@@ -261,7 +262,7 @@ function updateState() {
   updateAllPlayers();
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = `Player ${turn + 1}`;
-  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled });
+  io.sockets.emit('state', { discardTop, discardCount: discard.length, pileCount: pile.length, playerNext, playerCount: players.length, inProgress, challengeEnabled, slapdownCount: slapdownCounter, pickupAmount: pickupAmount, picktwoEnabled, wildColour });
 }
 
 //send a log message to all players
