@@ -124,8 +124,8 @@ io.on('connection', function (socket) {
     wildColour = data.wildColour;
     message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
-      prevWildColour = wildColour;
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
+      prevWildColour = wildColour;
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -138,10 +138,14 @@ io.on('connection', function (socket) {
     previousPlayerIndex = nextPlayer(turn, !reverseDirection);
     message(`${uuidToName(uuid)} challenged - ${players[previousPlayerIndex].name}`);
 
+    let discardtemp = [...discard];
+    topDiscard = discardtemp.pop();
+    secondDiscard = discardtemp.pop();
+
     let invalid = false;
     //check if that colour could have been played
     players[previousPlayerIndex].hand.forEach(card => {
-      invalid = invalid || card.includes(prevWildColour);
+      invalid = invalid || card.includes(cardColour(secondDiscard));
     });
 
     if (invalid) {
@@ -167,6 +171,23 @@ io.on('connection', function (socket) {
       checkPile();
       players[turn].hand.push(pile.pop());
       checkPile();
+      if (discard.slice(-1).pop().includes('picker')) {
+        players[turn].hand.push(pile.pop());
+        checkPile();
+        players[turn].hand.push(pile.pop());
+        checkPile();
+      }
+      else if (discard.slice(-1).pop().includes('wild_pick')) {
+        players[turn].hand.push(pile.pop());
+        checkPile();
+        players[turn].hand.push(pile.pop());
+        checkPile();
+        players[turn].hand.push(pile.pop());
+        checkPile();
+        players[turn].hand.push(pile.pop());
+        checkPile();
+      }
+
     }
     challengeEnabled = false;
     drawEnabled = false;
@@ -508,6 +529,13 @@ function uuidToIndex(uuid) {
     }
   });
   return index;
+}
+
+function cardColour(card){
+  if(card.includes('red')) return 'red';
+  if(card.includes('blue')) return 'blue';
+  if(card.includes('yellow')) return 'yellow';
+  if(card.includes('green')) return 'green';
 }
 
 module.exports = app;
