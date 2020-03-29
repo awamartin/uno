@@ -106,14 +106,7 @@
       } else {
         $("#challenge").hide();
       }
-      //show drawCard buttons
-      if (drawEnabled && (playerNext == $("#playerName").text())) {
-        $("#drawCard").show();
-        $("#drawCardtext").show();
-      } else {
-        $("#drawCard").hide();
-        $("#drawCardtext").hide();
-      }
+
       //show Your Deal text
       if (inProgress) {
         $("#yourdeal").hide();
@@ -135,6 +128,16 @@
           $("#yourturn").hide();
           $("#pick_but").hide();
         }
+        //show drawCard buttons
+        if (drawEnabled && (playerNext == $("#playerName").text())) {
+          $("#drawCard").show();
+          $("#drawCardtext").show();
+          $("#pick_but").hide();
+        } else {
+          $("#drawCard").hide();
+          $("#drawCardtext").hide();
+        }
+
       } else {
         $("#challenge").hide();
         $("#drawCardtext").hide();
@@ -151,15 +154,16 @@
         }
       }
 
+
       console.log(!$('yourturn').is(":hidden"));
       console.log(discardTop);
       //handle 1st card colour choice for wild
-      let topCard = discardTop|| '';
+      let topCard = discardTop || '';
       if (playerNext == $("#playerName").text() && topCard.includes('wild') && wildColour == ' ') {
-    
+
         playedWild = 'deal';
         $("#colours").show();
-      } 
+      }
     });
 
     //log message
@@ -243,7 +247,8 @@
           <div>Number of Players: <label id="playerCount"></label></div>
         </td>
         <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="currentColour"></strong></div>
+          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="currentColour"></strong>
+          </div>
         </td>
       </tr>
       <tr style="height: 16px;">
@@ -258,7 +263,10 @@
         <td style="width: 250px; height: 16px;">
           <div>Cards in Pile: <label id="pileCount"></label></div>
         </td>
-        <td style="width: 450px; height: 16px;"><div hidden="true" id="clockwise"><strong>Clockwise</strong></div><div hidden="true" id="anticlockwise"><strong>Anti-Clockwise</strong></div></td>
+        <td style="width: 450px; height: 16px;">
+          <div hidden="true" id="clockwise"><strong>Clockwise</strong></div>
+          <div hidden="true" id="anticlockwise"><strong>Anti-Clockwise</strong></div>
+        </td>
       </tr>
       <tr style="height: 16px;">
         <td style="width: 250px; height: 16px;">
@@ -277,8 +285,8 @@
       class="button green_but" id="green_but">Green</button><button class="button red_but"
       id="red_but">Red</button><button class="button yellow_but" id="yellow_but">Yellow</button></div>
   <div hidden="true" id="challenge"><button class="button" id="challenge_but">Challenge</button></div>
-  <div hidden="true" id="drawCardtext">Pick up: <label id="drawAmount"></div>
-  <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Pick up</button></div>
+  <div hidden="true" id="drawCardtext">Draw Cards: <label id="drawAmount"></div>
+  <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Draw</button></div>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
 
