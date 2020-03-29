@@ -182,13 +182,41 @@ socket.on('refresh', text => {
     <button class="button" id="deal_but">Deal</button>
     <button class="button" id="pick_but" hidden="true">Pick-up</button>
   </p>
+  <table>
+  <tbody>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
   <div>Your Name: <label id="playerName"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
   <div>Number of Players: <label id="playerCount"></label></div>
-
-  <div>Next Turn: <label id="playerNext"></div>
-  <div>Cards in Pile: <label id="pileCount"></div>
-  <div>Cards in Discard: <label id="discardCount"></div>
-  <div>Slapdown: <label id="slapdownCount"></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Next Turn: <label id="playerNext"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Cards in Pile: <label id="pileCount"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  <tr style="height: 16px;">
+  <td style="width: 250px; height: 16px;">
+  <div>Cards in Discard: <label id="discardCount"></label></div>
+  </td>
+  <td style="width: 450px; height: 16px;">&nbsp;</td>
+  </tr>
+  </tbody>
+  </table>
+  <div>&nbsp;</div>
   <div>The Discard Pile:</div>
   <div id="discard" class="cards">
     <label id="discardTop"></label>
