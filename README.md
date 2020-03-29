@@ -19,7 +19,6 @@ Currently running at http://40.127.69.20:8080/
 # To Do
 
 - customisable player names - AM
-- sort button for players hand - CC
 - uno button/uno challenge rules
 - deal notifier - CC
 - player score table

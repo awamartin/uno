@@ -88,6 +88,15 @@ io.on('connection', function (socket) {
     updateState();
   });
 
+  //sort your hand
+  socket.on('sort', function (uuid) {
+	let playerIndex = null;
+    playerIndex = uuidToIndex(uuid);
+	console.log(`${uuidToName(uuid)} sorted their hand`);
+    players[playerIndex].hand.sort();
+	updateState()
+  });
+  
   //user start a new game
   socket.on('deal', function (uuid) {
     if (players[dealer].uuid == uuid) {

@@ -35,6 +35,9 @@
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);
     });
+    $("#sortmyhand").click(function () {
+      socket.emit('sort', uuid);
+    });
     $("#challenge_but").click(function () {
       socket.emit('challenge', uuid);
     });
@@ -109,6 +112,7 @@
 
       //show Your Deal text
       if (inProgress) {
+	    $("#sortmyhand").show();
         $("#yourdeal").hide();
         $("#deal_but").hide();
         $("#currentcolour").show();
@@ -143,6 +147,7 @@
         }
 
       } else {
+	    $("#sortmyhand").hide();
         $("#challenge").hide();
         $("#drawCardtext").hide();
         $("#drawCard").hide();
@@ -291,6 +296,7 @@
   <div hidden="true" id="challenge"><button class="button" id="challenge_but">Challenge</button></div>
   <div hidden="true" id="drawCardtext">Draw Cards: <label id="drawAmount"></div>
   <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Draw</button></div>
+  <button class="button" id="sortmyhand" hidden="true">Sort hand</button>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
 
