@@ -45,6 +45,7 @@ glob("./public/cards/*", function (er, files) {
 
 //globals for tracking state
 var players = [];
+var playerdata = [];
 var discard = [];
 var pile = [];
 var turn = 0;
@@ -80,11 +81,13 @@ io.on('connection', function (socket) {
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
         players[playerIndex].name = `Player ${playerIndex + 1}`;
+		playerdata[playerIndex].cardsInHand = 7;
       });
     } else {
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
+      playerdata.push({ cardsInHand: 7 });
     }
     updateState();
   });
@@ -226,6 +229,7 @@ io.on('connection', function (socket) {
     io.sockets.emit('refresh');
     //init all of the gobals to their default state
     players = [];
+	playerdata = [];
     discard = [];
     pile = [];
     turn = 0;
@@ -348,7 +352,8 @@ function updateState() {
     drawEnabled,
     wildColour,
     reverseDirection,
-	currentColour
+	currentColour,
+	playerdata
   });
 }
 
@@ -363,6 +368,7 @@ function clearHands() {
   players.forEach((player, playerIndex) => {
     for (let i = 0; i < 7; i++) {
       players[playerIndex].hand = [];
+	  playerdata[playerIndex].cardsInHand = 7;
     }
   });
 }
@@ -463,13 +469,13 @@ function playCard(card, uuid, wildColour = null) {
   discard.push(card);
   //remove from hand
   players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
-
+  
   //check for win
   if (players[playerIndex].hand.length == 0) {
     message(`${uuidToName(uuid)} won the game`);
     inProgress = false;
   }
-
+  playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
   nextTurn(skip);
 
   updateState();
