@@ -78,6 +78,12 @@
       $("#colours").hide();
     });
 
+    //name change
+    $("#playerName").change(function () {
+      console.log('namechange')
+      socket.emit('namechange', { uuid: uuid, name: $("#playerName").val() });
+    });
+
     //update state of misc items
     socket.on('state', data => {
       let discardTop = data.discardTop;
@@ -94,11 +100,6 @@
       let currentColour = data.currentColour;
       let reverseDirection = data.reverseDirection;
       let playerdata = data.playerdata;
-
-      console.log(data);
-      console.log("hi");
-      console.log(playerdata);
-      console.log(playerdata[0].cardsInHand);
 
       $("#playerNext").text(playerNext);
       $("#dealerNext").text(dealerNext);
@@ -120,7 +121,7 @@
         });
       $("#discardTop").append(card);
       //show challenge buttons
-      if (challengeEnabled && (playerNext == $("#playerName").text())) {
+      if (challengeEnabled && (playerNext == $("#playerName").val())) {
         $("#challenge").show();
       } else {
         $("#challenge").hide();
@@ -141,7 +142,7 @@
           $("#anticlockwise").hide();
         }
         //show Your Turn text
-        if (playerNext == $("#playerName").text()) {
+        if (playerNext == $("#playerName").val()) {
           $("#yourturn").show();
           if (!drawEnabled) {
             $("#pick_but").show();
@@ -153,7 +154,7 @@
           $("#pick_but").hide();
         }
         //show drawCard buttons
-        if (drawEnabled && (playerNext == $("#playerName").text())) {
+        if (drawEnabled && (playerNext == $("#playerName").val())) {
           $("#drawCard").show();
           $("#drawCardtext").show();
           $("#pick_but").hide();
@@ -170,7 +171,7 @@
         $("#pick_but").hide();
         $("#currentcolour").hide();
         $("#yourturn").hide();
-        if (dealerNext == $("#playerName").text()) {
+        if (dealerNext == $("#playerName").val()) {
           $("#yourdeal").show();
           $("#deal_but").show();
         } else {
@@ -185,7 +186,7 @@
       console.log(discardTop);
       //handle 1st card colour choice for wild
       let topCard = discardTop || '';
-      if (playerNext == $("#playerName").text() && topCard.includes('wild') && wildColour == ' ') {
+      if (playerNext == $("#playerName").val() && topCard.includes('wild') && wildColour == ' ') {
 
         playedWild = 'deal';
         $("#colours").show();
@@ -228,7 +229,7 @@
     socket.on(uuid, player => {
       console.log(player);
       $("#hand").empty();
-      $("#playerName").text(player.name);
+      $("#playerName").val(player.name);
 
       //add each card to the hand
       let card;
@@ -280,7 +281,7 @@
     <tbody>
       <tr style="height: 16px;">
         <td style="width: 250px; height: 16px;">
-          <div>Your Name: <label id="playerName"></label></div>
+          <div>Your Name: <input type="text" id="playerName"></div>
         </td>
         <td style="width: 450px; height: 16px;">
           <div hidden="true" id="yourturn"><strong>Your turn!</strong></div>

@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
         players[playerIndex].name = `Player ${playerIndex + 1}`;
-		playerdata[playerIndex].cardsInHand = 7;
+        playerdata[playerIndex].cardsInHand = 7;
       });
     } else {
       //create new player
@@ -94,13 +94,13 @@ io.on('connection', function (socket) {
 
   //sort your hand
   socket.on('sort', function (uuid) {
-	let playerIndex = null;
+    let playerIndex = null;
     playerIndex = uuidToIndex(uuid);
-	console.log(`${uuidToName(uuid)} sorted their hand`);
+    console.log(`${uuidToName(uuid)} sorted their hand`);
     players[playerIndex].hand.sort();
-	updateState()
+    updateState()
   });
-  
+
   //user start a new game
   socket.on('deal', function (uuid) {
     if (players[dealer].uuid == uuid) {
@@ -113,10 +113,10 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} dealt out of turn`);
     }
   });
-  
+
   //user start a new game
   socket.on('uno1', function (uuid) {
-	  message(`${uuidToName(uuid)} played uno 1`);
+    message(`${uuidToName(uuid)} played uno 1`);
   });
 
   //user picks up a card
@@ -127,7 +127,7 @@ io.on('connection', function (socket) {
       players[turn].hand.push(pickupCard);
       //check if the player can put it down straight away
       if (!isPlayable(pickupCard)) nextTurn();
- 
+
       updateState()
     }
     else {
@@ -145,9 +145,9 @@ io.on('connection', function (socket) {
     message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
-	  //is this called?
-	  currentColour = wildColour;
-	  prevWildColour = wildColour;	  
+      //is this called?
+      currentColour = wildColour;
+      prevWildColour = wildColour;
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -228,13 +228,35 @@ io.on('connection', function (socket) {
     updateState();
   });
 
+  //user changes name
+  socket.on('namechange', function (data) {
+    let uuid = data.uuid;
+    let name = data.name;
+
+    let invalid = false;
+    players.forEach(player => {
+      if (player.name == name) {
+        invalid = true;
+      }
+    })
+
+    if (invalid) {
+      message(`${uuidToName(uuid)} tried to change their name to the same name as another player - ${name}`);
+    } else {
+      message(`${uuidToName(uuid)} changed name to - ${name}`);
+      players[uuidToIndex(uuid)].name = name;
+    }
+    updateState();
+
+  });
+
   //reset the game
   socket.on('reset', function (uuid) {
     message(`${uuidToName(uuid)} reset the game`);
     io.sockets.emit('refresh');
     //init all of the gobals to their default state
     players = [];
-	playerdata = [];
+    playerdata = [];
     discard = [];
     pile = [];
     turn = 0;
@@ -291,23 +313,23 @@ function deal() {
   discard.push(pile.pop());
   let topCard = discard.slice(-1).pop()
   if (!topCard.includes('wild')) {
-	currentColour = cardColour(topCard);
+    currentColour = cardColour(topCard);
   } else {
-	// Choose colour
+    // Choose colour
   }
-  
-  prevWildColour = wildColour;  
-  
+
+  prevWildColour = wildColour;
+
   //draw two
   if (topCard.includes('picker')) {
     drawAmount = drawAmount + 2;
     drawEnabled = true;
   }
-  
+
   //draw four
   if (topCard.includes('wild_pick')) {
-	drawAmount = 4;
-	drawEnabled = true;
+    drawAmount = 4;
+    drawEnabled = true;
   }
 
   //skip
@@ -320,15 +342,15 @@ function deal() {
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
-	
-	
+
+
   nextTurn(skip);
 
   inProgress = true;
   //turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
- 
+
 }
 
 //send state to all players
@@ -357,8 +379,8 @@ function updateState() {
     drawEnabled,
     wildColour,
     reverseDirection,
-	currentColour,
-	playerdata
+    currentColour,
+    playerdata
   });
 }
 
@@ -373,7 +395,7 @@ function clearHands() {
   players.forEach((player, playerIndex) => {
     for (let i = 0; i < 7; i++) {
       players[playerIndex].hand = [];
-	  playerdata[playerIndex].cardsInHand = 7;
+      playerdata[playerIndex].cardsInHand = 7;
     }
   });
 }
@@ -432,8 +454,8 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('wild')) {
     challengeEnabled = true;
     message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
-    prevCurrentColour = currentColour; 
-	currentColour = wildColour;
+    prevCurrentColour = currentColour;
+    currentColour = wildColour;
   } else {
     challengeEnabled = false;
   }
@@ -464,9 +486,9 @@ function playCard(card, uuid, wildColour = null) {
   if (isSlapdown(card)) {
     slapdownCounter++;
   }
-  
+
   if (!card.includes('wild')) {
-	currentColour = cardColour(card);
+    currentColour = cardColour(card);
   }
   prevWildColour = currentColour;
 
@@ -474,7 +496,7 @@ function playCard(card, uuid, wildColour = null) {
   discard.push(card);
   //remove from hand
   players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
-  
+
   //check for win
   if (players[playerIndex].hand.length == 0) {
     message(`${uuidToName(uuid)} won the game`);
@@ -572,11 +594,11 @@ function uuidToIndex(uuid) {
   return index;
 }
 
-function cardColour(card){
-  if(card.includes('red')) return 'red';
-  if(card.includes('blue')) return 'blue';
-  if(card.includes('yellow')) return 'yellow';
-  if(card.includes('green')) return 'green';
+function cardColour(card) {
+  if (card.includes('red')) return 'red';
+  if (card.includes('blue')) return 'blue';
+  if (card.includes('yellow')) return 'yellow';
+  if (card.includes('green')) return 'green';
 }
 
 module.exports = app;
