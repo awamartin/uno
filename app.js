@@ -234,13 +234,17 @@ io.on('connection', function (socket) {
     let name = data.name;
 
     let invalid = false;
+
     players.forEach(player => {
       if (player.name == name) {
         invalid = true;
       }
     })
 
-    if (invalid) {
+    if(name.length < 2 || name.length > 20){
+      message(`${uuidToName(uuid)} tried to change their name and it was too short or too long - ${name}`);
+    }
+   else if (invalid) {
       message(`${uuidToName(uuid)} tried to change their name to the same name as another player - ${name}`);
     } else {
       message(`${uuidToName(uuid)} changed name to - ${name}`);
