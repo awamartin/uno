@@ -58,6 +58,7 @@ var drawAmount = 0;
 var slapdownCounter = 0;
 var wildColour = ' ';
 var currentColour = ' ';
+var prevCurrentColour = ' ';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -136,8 +137,9 @@ io.on('connection', function (socket) {
     message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
-      currentColour = wildColour;
-	  prevWildColour = wildColour;
+	  //is this called?
+	  currentColour = wildColour;
+	  prevWildColour = wildColour;	  
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -148,16 +150,12 @@ io.on('connection', function (socket) {
   //user plays challenge
   socket.on('challenge', function (uuid) {
     previousPlayerIndex = nextPlayer(turn, !reverseDirection);
-    message(`${uuidToName(uuid)} challenged - ${players[previousPlayerIndex].name}`);
-
-    let discardtemp = [...discard];
-    topDiscard = discardtemp.pop();
-    secondDiscard = discardtemp.pop();
+    message(`${uuidToName(uuid)} challenged ${players[previousPlayerIndex].name}`);
 
     let invalid = false;
     //check if that colour could have been played
     players[previousPlayerIndex].hand.forEach(card => {
-      invalid = invalid || card.includes(cardColour(secondDiscard));
+      invalid = invalid || card.includes(prevCurrentColour);
     });
 
     if (invalid) {
@@ -284,7 +282,7 @@ function deal() {
   discard.push(pile.pop());
   let topCard = discard.slice(-1).pop()
   if (!topCard.includes('wild')) {
-	currentColour = colouredCard(topCard);
+	currentColour = cardColour(topCard);
   } else {
 	// Choose colour
   }
@@ -423,6 +421,7 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('wild')) {
     challengeEnabled = true;
     message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
+    prevCurrentColour = currentColour; 
 	currentColour = wildColour;
   } else {
     challengeEnabled = false;
@@ -456,7 +455,7 @@ function playCard(card, uuid, wildColour = null) {
   }
   
   if (!card.includes('wild')) {
-	currentColour = colouredCard(card);
+	currentColour = cardColour(card);
   }
   prevWildColour = currentColour;
 
@@ -476,21 +475,6 @@ function playCard(card, uuid, wildColour = null) {
   updateState();
   return true;
 }
-
-function colouredCard(card) {
-  colour = ' ';
-  if (card.includes('yellow')) {
-	colour = 'yellow';
-  } else if (card.includes('red')) {
-	colour = 'red';
-  } else if (card.includes('blue')) {
-	colour = 'blue';
-  } else if (card.includes('green')) {
-	colour = 'green';
-  } 
-  return colour;
-}
-
 
 //check if the card is playable
 function isPlayable(card) {
