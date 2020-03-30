@@ -113,6 +113,11 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} dealt out of turn`);
     }
   });
+  
+  //user start a new game
+  socket.on('uno1', function (uuid) {
+	  message(`${uuidToName(uuid)} played uno 1`);
+  });
 
   //user picks up a card
   socket.on('pickup', function (uuid) {

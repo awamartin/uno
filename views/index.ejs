@@ -12,7 +12,7 @@
     Cookies.set('uuid', Math.random());
   }
   var uuid = Cookies.get('uuid');
-
+  var playerCount = 5;
   var playedWild = '';
 
   //socket
@@ -47,7 +47,18 @@
     $("#reset_but").click(function () {
       socket.emit('reset', uuid);
     });
+	
+//	for (let i = 0; i < 5; i++) {
+//		$("#uno${i}_but").click(function () {
+//		socket.emit('uno${i}', uuid);
+//		});
+//	}
 
+    $("#uno1_but").click(function () {
+      socket.emit('uno1', uuid);
+    });
+
+	
     //wildcard selections
     $("#red_but").click(function () {
       socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'red' });
@@ -75,7 +86,7 @@
       let drawAmount = data.drawAmount;
       let playerNext = data.playerNext;
       let dealerNext = data.dealerNext;
-      let playerCount = data.playerCount;
+      playerCount = data.playerCount;
       let inProgress = data.inProgress;
       let challengeEnabled = data.challengeEnabled;
       let drawEnabled = data.drawEnabled;
@@ -322,8 +333,8 @@
     $('#playertable').before(`<tr><th class="tg-0lax">Player name</th><th class="tg-0lax">Cards in hand</th><th class="tg-0lax">Wins</th><th class="tg-0lax">Score</th><th class="tg-0lax">Uno!</th><th class="tg-0lax">Catch!</th></tr>`);
     //dyanmically add the other players
     //EXAMPLE ONLY
-    for (let i = 1; i < 5; i++) {
-      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i}</th><th class="tg-0lax"></th><th class="tg-0lax">${Math.round(Math.random()*4)}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
+    for (let i = 0; i < ${playerCount}; i++) {
+      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i+1}</th><th class="tg-0lax"></th><th class="tg-0lax">${Math.round(Math.random()*4)}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
     }
 
     /*
