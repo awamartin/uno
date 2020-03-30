@@ -14,6 +14,7 @@
   var uuid = Cookies.get('uuid');
   var playerCount = 5;
   var playedWild = '';
+  var playerdata = [];
 
   //socket
   /*
@@ -92,11 +93,12 @@
       let drawEnabled = data.drawEnabled;
       let currentColour = data.currentColour;
       let reverseDirection = data.reverseDirection;
-      let playerData[] = data.playerData[];
+      let playerdata = data.playerdata;
 
       console.log(data);
 	  console.log("hi");
-      console.log(cardsInHand);
+      console.log(playerdata);
+      console.log(playerdata[0].cardsInHand);
 
       $("#playerNext").text(playerNext);
       $("#dealerNext").text(dealerNext);
@@ -107,7 +109,6 @@
       $("#reverseDirection").text(reverseDirection);
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
-      $("#testme").text(playerData);
 
       //update discard pile
       $("#discardTop").empty();
@@ -335,7 +336,7 @@
     //dyanmically add the other players
     //EXAMPLE ONLY
     for (let i = 0; i < 5; i++) {
-      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i+1}</th><th class="tg-0lax"></th><th class="tg-0lax">${Math.round(Math.random()*4)}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
+      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i+1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[0].cardsInHand}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
     }
 
     /*
