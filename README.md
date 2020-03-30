@@ -24,3 +24,4 @@ Currently running at http://40.127.69.20:8080/
 - player score table
 - player joining half way through gets to play with 0/1 pickup cards
 - reset should be hidden unless in debug mode, it's currently unclear that this resets the game and not just the log
+- pick up / don't wait up.
