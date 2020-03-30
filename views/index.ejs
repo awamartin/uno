@@ -48,18 +48,18 @@
     $("#reset_but").click(function () {
       socket.emit('reset', uuid);
     });
-	
-//	for (let i = 0; i < 5; i++) {
-//		$("#uno${i}_but").click(function () {
-//		socket.emit('uno${i}', uuid);
-//		});
-//	}
+
+    //	for (let i = 0; i < 5; i++) {
+    //		$("#uno${i}_but").click(function () {
+    //		socket.emit('uno${i}', uuid);
+    //		});
+    //	}
 
     $("#uno1_but").click(function () {
       socket.emit('uno1', uuid);
     });
 
-	
+
     //wildcard selections
     $("#red_but").click(function () {
       socket.emit('playcard', { uuid: uuid, card: playedWild, wildColour: 'red' });
@@ -96,7 +96,7 @@
       let playerdata = data.playerdata;
 
       console.log(data);
-	  console.log("hi");
+      console.log("hi");
       console.log(playerdata);
       console.log(playerdata[0].cardsInHand);
 
@@ -190,6 +190,22 @@
         playedWild = 'deal';
         $("#colours").show();
       }
+
+
+      //clear playertable
+      $('#playertable').empty();
+      //add title row
+      $('#playertable').before(`<tr><th class="tg-0lax">Player name</th><th class="tg-0lax">Cards in hand</th><th class="tg-0lax">Wins</th><th class="tg-0lax">Score</th><th class="tg-0lax">Uno!</th><th class="tg-0lax">Catch!</th></tr>`);
+      //dyanmically add the other players
+      //EXAMPLE ONLY
+      for (let i = 0; i < 5; i++) {
+        $('#playertable').before(`<tr><th class="tg-0lax">Player ${i + 1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[0].cardsInHand}</th><th class="tg-0lax">${Math.round(Math.random() * 100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
+      }
+
+      /*
+      notes:
+      Control the look and feel of the table (row size etc) by changing the css class
+      */
     });
 
     //log message
@@ -239,6 +255,8 @@
 
 
   });
+
+
 
 </script>
 
@@ -314,11 +332,11 @@
   <div hidden="true" id="drawCardtext">Draw Cards: <label id="drawAmount"></div>
   <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Draw</button></div>
   <button class="button" id="sortmyhand" hidden="true">Sort hand</button>
-  <div>Yocxvcd:<label id="testme"></label></div>
   <div>Your Hand:</div>
   <div id="hand" class="cards">
 
   </div>
+  <table id="playertable"></table>
   <div>
     Log:
   </div>
@@ -327,23 +345,8 @@
   </div>
   <button class="button" id="reset_but">Reset Game</button>
 
-  <table id="playertable"></table>
-  <script>
-    //clear playertable
-    $('#playertable').empty();
-    //add title row
-    $('#playertable').before(`<tr><th class="tg-0lax">Player name</th><th class="tg-0lax">Cards in hand</th><th class="tg-0lax">Wins</th><th class="tg-0lax">Score</th><th class="tg-0lax">Uno!</th><th class="tg-0lax">Catch!</th></tr>`);
-    //dyanmically add the other players
-    //EXAMPLE ONLY
-    for (let i = 0; i < 5; i++) {
-      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i+1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[0].cardsInHand}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
-    }
 
-    /*
-    notes:
-    Control the look and feel of the table (row size etc) by changing the css class
-    */
-  </script>
+
 </body>
 
 </html>
