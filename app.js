@@ -82,12 +82,13 @@ io.on('connection', function (socket) {
         players[playerIndex].socket = socket.id;
         players[playerIndex].name = `Player ${playerIndex + 1}`;
         playerdata[playerIndex].cardsInHand = 0;
+		playerdata[playerIndex].name = players[playerIndex].name;
       });
     } else {
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
-      playerdata.push({ cardsInHand: 0, score: 0 });
+      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: `Player ${players.length + 1}` });
     }
     updateState();
   });
@@ -253,6 +254,7 @@ io.on('connection', function (socket) {
     } else {
       message(`${uuidToName(uuid)} changed name to - ${name}`);
       players[uuidToIndex(uuid)].name = name;
+	  playerdata[uuidToIndex(uuid)].name = name;
     }
     updateState();
 
@@ -510,6 +512,7 @@ function playCard(card, uuid, wildColour = null) {
     message(`${uuidToName(uuid)} won the game`);
     inProgress = false;
 	updateScore();
+	playerdata[playerIndex].wins += 1;
   }
   playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
   nextTurn(skip);
@@ -576,7 +579,6 @@ function updateScore() {
 	for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
 		scoreInHand = 0;
 		
-		message(`Calculating ${thisPlayer}s score`);
 		players[thisPlayer].hand.forEach(card => {
 			if (card.includes('0')) scoreInHand += 0;
 			if (card.includes('1')) scoreInHand += 1;
@@ -594,7 +596,6 @@ function updateScore() {
 			if (card.includes('colora')) scoreInHand += 50;
 			if (card.includes('pick_four')) scoreInHand += 50;
 	  });
-	  message(`${thisPlayer} had a score of - ${scoreInHand}`);
 		playerdata[thisPlayer].score = playerdata[thisPlayer].score + scoreInHand;
     }
 }

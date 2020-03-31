@@ -111,9 +111,7 @@
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
 
-	  
-		console.log("hi");
-		console.log(playerdata);
+	  	console.log(playerdata);
 	  
       //update discard pile
       $("#discardTop").empty();
@@ -204,7 +202,7 @@
       //dyanmically add the other players
       //EXAMPLE ONLY
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr><th class="tg-0lax">Player ${i + 1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[i].cardsInHand}</th><th class="tg-0lax">${playerdata[i].score}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
+        $('#playertable').append(`<tr><th class="tg-0lax">${playerdata[i].name}</th><th class="tg-0lax">${playerdata[i].cardsInHand}</th><th class="tg-0lax">${playerdata[i].wins}</th><th class="tg-0lax">${playerdata[i].score}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></th></tr>`);
       }
 
       /*
