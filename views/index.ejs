@@ -83,7 +83,7 @@
       console.log('namechange')
       socket.emit('namechange', { uuid: uuid, name: $("#playerName").val() });
     });
-
+	
     //update state of misc items
     socket.on('state', data => {
       let discardTop = data.discardTop;
@@ -111,6 +111,10 @@
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
 
+	  
+		console.log("hi");
+		console.log(playerdata);
+	  
       //update discard pile
       $("#discardTop").empty();
       let card = $('<img/>',
@@ -199,8 +203,8 @@
       $('#playertable').append(`<tr><th class="tg-0lax">Player name</th><th class="tg-0lax">Cards in hand</th><th class="tg-0lax">Wins</th><th class="tg-0lax">Score</th><th class="tg-0lax">Uno!</th><th class="tg-0lax">Catch!</th></tr>`);
       //dyanmically add the other players
       //EXAMPLE ONLY
-      for (let i = 0; i < 5; i++) {
-        $('#playertable').append(`<tr><th class="tg-0lax">Player ${i + 1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[0].cardsInHand}</th><th class="tg-0lax">${Math.round(Math.random() * 100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
+      for (let i = 0; i < playerCount; i++) {
+        $('#playertable').append(`<tr><th class="tg-0lax">Player ${i + 1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[i].cardsInHand}</th><th class="tg-0lax">${playerdata[i].score}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
       }
 
       /*
@@ -347,19 +351,6 @@
 
   </div>
   <button class="button" id="reset_but">Reset Game</button>
-
-  <table id="playertable"></table>
-  <script>
-    //clear playertable
-    $('#playertable').empty();
-    //add title row
-    $('#playertable').before(`<tr><th class="tg-0lax">Player name</th><th class="tg-0lax">Cards in hand</th><th class="tg-0lax">Wins</th><th class="tg-0lax">Score</th><th class="tg-0lax">Uno!</th><th class="tg-0lax">Catch!</th></tr>`);
-    //dyanmically add the other players
-    //EXAMPLE ONLY
-    for (let i = 0; i < 5; i++) {
-//      $('#playertable').before(`<tr><th class="tg-0lax">Player ${i+1}</th><th class="tg-0lax"></th><th class="tg-0lax">${playerdata[0].cardsInHand}</th><th class="tg-0lax">${Math.round(Math.random()*100)}</th><th class="tg-0lax"><button class="button" id="uno${i}_but">Uno! Player ${i}</button></th><th class="tg-0lax"><button class="button" id="catch${i}_but">Catch Player ${i}</button></tr>`);
-    }
-
 
 </body>
 

@@ -81,13 +81,13 @@ io.on('connection', function (socket) {
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
         players[playerIndex].name = `Player ${playerIndex + 1}`;
-        playerdata[playerIndex].cardsInHand = 7;
+        playerdata[playerIndex].cardsInHand = 0;
       });
     } else {
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
-      playerdata.push({ cardsInHand: 7 });
+      playerdata.push({ cardsInHand: 0, score: 0 });
     }
     updateState();
   });
@@ -128,6 +128,7 @@ io.on('connection', function (socket) {
       //check if the player can put it down straight away
       if (!isPlayable(pickupCard)) nextTurn();
 
+	  playerdata[turn].cardsInHand = players[playerIndex].hand.length;
       updateState()
     }
     else {
@@ -209,6 +210,8 @@ io.on('connection', function (socket) {
     }
     challengeEnabled = false;
     drawEnabled = false;
+	playerdata[turn].cardsInHand = players[playerIndex].hand.length;
+	playerdata[previousPlayerIndex].cardsInHand = players[playerIndex].hand.length;
     updateState();
   });
 
@@ -225,6 +228,7 @@ io.on('connection', function (socket) {
     drawEnabled = false;
     challengeEnabled = false;
     nextTurn(false);
+	playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
     updateState();
   });
 
@@ -311,6 +315,7 @@ function deal() {
       players[playerIndex].hand.push(pile.pop());
     }
     players[playerIndex].hand.sort();
+	playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
   });
   //one for the top of the discard
 
@@ -399,7 +404,6 @@ function clearHands() {
   players.forEach((player, playerIndex) => {
     for (let i = 0; i < 7; i++) {
       players[playerIndex].hand = [];
-      playerdata[playerIndex].cardsInHand = 7;
     }
   });
 }
@@ -505,6 +509,7 @@ function playCard(card, uuid, wildColour = null) {
   if (players[playerIndex].hand.length == 0) {
     message(`${uuidToName(uuid)} won the game`);
     inProgress = false;
+	updateScore();
   }
   playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
   nextTurn(skip);
@@ -565,6 +570,16 @@ function checkPile() {
   }
 }
 
+//check to see if there are plenty of cards in the pile
+function updateScore() {
+	for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
+		let scoreInHand = 0;
+		players[playerIndex].hand.forEach(card => {
+			if (card.includes('0')) scoreInHand += 0;
+	  });
+		playerData[playerIndex].score = playerData[playerIndex].score + scoreInHand;
+    }
+}
 //apply the next turn
 function nextTurn(skip = false) {
   turn = nextPlayer(turn, reverseDirection);
