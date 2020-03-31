@@ -128,6 +128,13 @@
       } else {
         $("#challenge").hide();
       }
+	  
+	  //only allow reset if debug
+      if (("debug" == $("#playerName").val())) {
+        $("#resetbut").show();
+      } else {
+        $("#resetbut").hide();
+      }
 
       //show Your Deal text
       if (inProgress) {
@@ -348,7 +355,7 @@
   <div id="messages">
 
   </div>
-  <button class="button" id="reset_but">Reset Game</button>
+  <div hidden="true" id="resetbut"><button class="button" id="reset_but">Reset Game</button></div>
 
 </body>
 
