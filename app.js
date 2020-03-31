@@ -128,7 +128,7 @@ io.on('connection', function (socket) {
       //check if the player can put it down straight away
       if (!isPlayable(pickupCard)) nextTurn();
 
-	  playerdata[turn].cardsInHand = players[playerIndex].hand.length;
+	  playerdata[turn].cardsInHand = players[turn].hand.length;
       updateState()
     }
     else {
@@ -210,8 +210,8 @@ io.on('connection', function (socket) {
     }
     challengeEnabled = false;
     drawEnabled = false;
-	playerdata[turn].cardsInHand = players[playerIndex].hand.length;
-	playerdata[previousPlayerIndex].cardsInHand = players[playerIndex].hand.length;
+	playerdata[turn].cardsInHand = players[turn].hand.length;
+	playerdata[previousPlayerIndex].cardsInHand = players[previousPlayerIndex].hand.length;
     updateState();
   });
 
@@ -572,12 +572,30 @@ function checkPile() {
 
 //check to see if there are plenty of cards in the pile
 function updateScore() {
+	var scoreInHand;
 	for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
-		let scoreInHand = 0;
-		players[playerIndex].hand.forEach(card => {
+		scoreInHand = 0;
+		
+		message(`Calculating ${thisPlayer}s score`);
+		players[thisPlayer].hand.forEach(card => {
 			if (card.includes('0')) scoreInHand += 0;
+			if (card.includes('1')) scoreInHand += 1;
+			if (card.includes('2')) scoreInHand += 2;
+			if (card.includes('3')) scoreInHand += 3;
+			if (card.includes('4')) scoreInHand += 4;
+			if (card.includes('5')) scoreInHand += 5;
+			if (card.includes('6')) scoreInHand += 6;
+			if (card.includes('7')) scoreInHand += 7;
+			if (card.includes('8')) scoreInHand += 8;
+			if (card.includes('9')) scoreInHand += 9;
+			if (card.includes('picker')) scoreInHand += 20;
+			if (card.includes('reverse')) scoreInHand += 20;
+			if (card.includes('skip')) scoreInHand += 20;
+			if (card.includes('colora')) scoreInHand += 50;
+			if (card.includes('pick_four')) scoreInHand += 50;
 	  });
-		playerData[playerIndex].score = playerData[playerIndex].score + scoreInHand;
+	  message(`${thisPlayer} had a score of - ${scoreInHand}`);
+		playerdata[thisPlayer].score = playerdata[thisPlayer].score + scoreInHand;
     }
 }
 //apply the next turn
