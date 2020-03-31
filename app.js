@@ -49,6 +49,8 @@ var playerdata = [];
 var discard = [];
 var pile = [];
 var turn = 0;
+var dontWaitUp = null;
+var dontWaitUpCard = '';
 var reverseDirection = false;
 var prevWildColour = null;
 var dealer = 0;
@@ -116,7 +118,7 @@ io.on('connection', function (socket) {
   });
 
   //user start a new game
-  socket.on('uno1', function (uuid) {
+  socket.on('uno8', function (uuid) {
     message(`${uuidToName(uuid)} played uno 1`);
   });
 
@@ -127,8 +129,9 @@ io.on('connection', function (socket) {
       let pickupCard = pile.pop();
       players[turn].hand.push(pickupCard);
       //check if the player can put it down straight away
-      if (!isPlayable(pickupCard)) nextTurn();
-
+	  dontWaitUp = uuid;	
+	  dontWaitUpCard = pickupCard;
+      nextTurn();
 	  playerdata[turn].cardsInHand = players[turn].hand.length;
       updateState()
     }
@@ -211,6 +214,8 @@ io.on('connection', function (socket) {
     }
     challengeEnabled = false;
     drawEnabled = false;
+	dontWaitUp = null;
+	dontWaitUpCard = '';
 	playerdata[turn].cardsInHand = players[turn].hand.length;
 	playerdata[previousPlayerIndex].cardsInHand = players[previousPlayerIndex].hand.length;
     updateState();
@@ -228,6 +233,8 @@ io.on('connection', function (socket) {
     drawAmount = 0;
     drawEnabled = false;
     challengeEnabled = false;
+	dontWaitUp = null;
+	dontWaitUpCard = '';
     nextTurn(false);
 	playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
     updateState();
@@ -270,6 +277,8 @@ io.on('connection', function (socket) {
     discard = [];
     pile = [];
     turn = 0;
+    dontWaitUp = null;
+	dontWaitUpCard = '';
     reverseDirection = false;
     prevWildColour = null;
     dealer = 0;
@@ -429,11 +438,24 @@ function playCard(card, uuid, wildColour = null) {
   let playerIndex = null;
 
   if ((players[turn].uuid != uuid)) {
-    message(`${uuidToName(uuid)} - played out of turn`);
+	message(`${uuidToName(uuid)} - played out of turn!`);
     if (isSlapdown(card)) {
       message(`${uuidToName(uuid)} - played a slapdown!`);
       playerIndex = uuidToIndex(uuid);
       turn = playerIndex;
+    } else if (dontWaitUp == uuid) {
+		if((card == dontWaitUpCard) && (isPlayable(dontWaitUpCard))){
+			message(`${uuidToName(uuid)} reminded ${playerdata[turn].name} not to wait up!`);
+			playerIndex = uuidToIndex(uuid);
+			turn = playerIndex;
+		} else {
+			if (card != dontWaitUpCard){
+				message(`${uuidToName(uuid)} - picked up a card and tried to play a different card`);
+			} else {
+				message(`${uuidToName(uuid)} - picked up a card and tried to play it, but it wasn't playable`);
+			}
+			return false;
+		}
     } else {
       return false;
     }
@@ -441,6 +463,8 @@ function playCard(card, uuid, wildColour = null) {
     playerIndex = turn;
   }
 
+  
+  
   //player must draw or challenge
   if (challengeEnabled && drawEnabled) {
     message(`${uuidToName(uuid)} - tried to play a card but needs to pickup or challenge`);
@@ -459,6 +483,10 @@ function playCard(card, uuid, wildColour = null) {
     return false;
   }
 
+  
+  dontWaitUp = null;
+  dontWaitUpCard = '';
+  
   //Modifiers
   //wild choose colour
   if (card.includes('wild')) {
@@ -525,6 +553,16 @@ function playCard(card, uuid, wildColour = null) {
 function isPlayable(card) {
   //same colour, number or is a wild
   let topCard = discard.slice(-1).pop() || ' ';
+  let BtopCard = discard.slice(-1).pop();
+  let CTopCard = discard.pop();
+    message(`${topCard} topcard`);
+    message(`${BtopCard} topcard`);
+    message(`${CTopCard} otherTopCard`);
+    message(`${card} card`);
+  //ASHBY - When this is checked when the player has played out of turn (Don't wait up), sometimes it works, and sometimes isPlayable is returned true.
+  //It is returned true because topcard resolves ' ', BTopCard resolves as undefined, CTopCard as undefined.
+  //Sooo... how can the discard deck not be available? Its a global, so it should be available for all players...
+  
   let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
   let colours = ['yellow', 'blue', 'red', 'green'];
   let valid = false;
@@ -603,7 +641,6 @@ function updateScore() {
 function nextTurn(skip = false) {
   turn = nextPlayer(turn, reverseDirection);
   if (skip) turn = nextPlayer(turn, reverseDirection);
-  console.log(`turn = ${turn}`)
   io.sockets.emit('turn', turn);
 }
 
