@@ -554,7 +554,7 @@ function isPlayable(card) {
   //same colour, number or is a wild
   let topCard = discard.slice(-1).pop() || ' ';
   let BtopCard = discard.slice(-1).pop();
-  let CTopCard = discard.pop();
+  let CTopCard = discard.slice(-1).pop();
     message(`${topCard} topcard`);
     message(`${BtopCard} topcard`);
     message(`${CTopCard} otherTopCard`);
