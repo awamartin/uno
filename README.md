@@ -18,7 +18,6 @@ Currently running at http://40.127.69.20:8080/
 
 # To Do
 
-- wild on start, present colour choice to second player
 - uno button/uno challenge rules - CC
 - player joining half way through gets to play with 0/1 pickup cards
 - pick up / don't wait up.
