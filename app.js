@@ -131,6 +131,7 @@ io.on('connection', function (socket) {
       //check if the player can put it down straight away
 	  dontWaitUp = uuid;	
 	  dontWaitUpCard = pickupCard;
+      challengeEnabled = false; // Turn off challenge of wild if someone picks up.
       nextTurn();
 	  playerdata[turn].cardsInHand = players[turn].hand.length;
       updateState()
@@ -559,6 +560,7 @@ function isPlayable(card) {
     message(`${BtopCard} topcard`);
     message(`${CTopCard} otherTopCard`);
     message(`${card} card`);
+    message(`${prevWildColour} prevWildColour`);
   //ASHBY - When this is checked when the player has played out of turn (Don't wait up), sometimes it works, and sometimes isPlayable is returned true.
   //It is returned true because topcard resolves ' ', BTopCard resolves as undefined, CTopCard as undefined.
   //Sooo... how can the discard deck not be available? Its a global, so it should be available for all players...
