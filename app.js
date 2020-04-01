@@ -60,7 +60,6 @@ var drawAmount = 0;
 var slapdownCounter = 0;
 var wildColour = ' ';
 var currentColour = ' ';
-var playerIndex = null;
 var prevCurrentColour = ' ';
 
 //open a socket
@@ -118,7 +117,9 @@ io.on('connection', function (socket) {
   });
 
   //uno and catch
-  socket.on('uno', function (playerIndex) {
+  socket.on('uno', function (uuid) {
+	let playerIndex = null;
+    playerIndex = uuidToIndex(uuid);
     message(`uno ${playerIndex}`);
 	if (players[playerIndex].hand.length == 1) {
 		playerdata[playerIndex].uno = true;

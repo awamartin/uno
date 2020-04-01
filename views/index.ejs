@@ -51,6 +51,9 @@
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);
     });
+    $("#uno_but").click(function () {
+      socket.emit('uno', uuid);
+    });
     $("#sortmyhand").click(function () {
       socket.emit('sort', uuid);
     });
@@ -163,6 +166,7 @@
       //show Your Deal text
       if (inProgress) {
         $("#sortmyhand").show();
+        $("#uno_but").show();
         $("#yourdeal").hide();
         $("#deal_but").hide();
         $("#currentcolour").show();
@@ -244,6 +248,7 @@
 
 		*/
       } else {
+        $("#uno_but").hide();
         $("#sortmyhand").hide();
         $("#challenge").hide();
         $("#drawCardtext").hide();
@@ -281,44 +286,44 @@
       //clear playertable
       $('#playertable').empty();
       //add title row
-      $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th><th >Uno!</th><th >Catch!</th></tr>`);
+      $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th></tr>`);
       //dyanmically add the other players
       //EXAMPLE ONLY
       for (let i = 0; i < playerCount; i++) {
-      $('#playertable').append(`<tr><th >${playerdata[i].name}</th><th >${playerdata[i].cardsInHand}</th><th >${playerdata[i].wins}</th><th >${playerdata[i].score}</th><th>`);
-	  
-	  let unobutton;
-		unobutton = $('<button/>',
-		{
-			text: "Uno! Player" + (i+1),
-			class: "button",
-			id: "uno" + i + "_but",
-			click: function () {
-              socket.emit('uno',i);
-              
-			}
-		});
-		$('#playertable').append(unobutton);
+     		
+		$('#playertable').append(`<tr><th>${playerdata[i].name}</th><th>${playerdata[i].cardsInHand}</th><th>${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
 		
-		$('#playertable').append(`</th><th>`);
+      }
+
+	   
+	  
+	  
+      //clear playertable
+      $('#unotable').empty();
+      //add title row
+      $('#unotable').append(`<tr><th >Catch!</th></tr>`);
+      //dyanmically add the other players
+      //EXAMPLE ONLY
+      for (let i = 0; i < playerCount; i++) {
+     
 		
 		let catchbutton;
 		catchbutton = $('<button/>',
 		{
-			text: "Catch Player" + (i+1),
+			text: "Catch " + playerdata[i].name,
 			class: "button",
 			id: "catch" + i + "_but",
 			click: function () {
               socket.emit('catch',i);
               
 			}
-		});
-		$('#playertable').append(catchbutton);
-				
-		$('#playertable').append(`</th></tr>`);
+		});	  	
+		
+		$('#unotable').append(`<tr><th>`,catchbutton,`</th></tr>`);
 
+		
       }
-
+	  
       /*
       notes:
       Control the look and feel of the table (row size etc) by changing the css class
@@ -431,7 +436,7 @@
         <td style="width: 250px; height: 16px;">
           <div>Cards in Discard: <label id="discardCount"></label></div>
         </td>
-        <td style="width: 450px; height: 16px;">&nbsp;</td>
+        <td style="width: 450px; height: 16px;"><button class="button" id="uno_but" hidden="true">Uno</button></td>
       </tr>
     </tbody>
   </table>
@@ -453,6 +458,11 @@
   </div>
   <div>
     <table id="playertable"></table>
+  </div>
+  
+  <div>&nbsp;</div>
+  <div>
+    <table id="unotable"></table>
   </div>
   <div>
     Log:
