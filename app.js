@@ -89,7 +89,7 @@ io.on('connection', function (socket) {
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
-      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: `Player ${players.length + 1}` });
+      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: `Player ${players.length + 1}`, uno: false });
     }
     updateState();
   });
@@ -116,30 +116,29 @@ io.on('connection', function (socket) {
     }
   });
 
-  //Debug
-  socket.on('uno0', function () {
-    message(`played uno 710`);
+  //uno and catch
+  for (let i=0; i<players.length; i++){
+	  socket.on('uno'+i, function () {
+    message(`played uno ${i}`);
+	if (players[i].hand.length == 1) {
+		playerdata[i].uno = true;
+	}
   });
-  //Debug
-  socket.on('uno1', function () {
-    message(`played uno 711`);
+	  socket.on('catch'+i, function () {
+    message(`played catch ${i}`);
+	if ((players[i].hand.length == 1) && (!playerdata[i].uno)) {
+		playerdata[i].uno = false;
+		for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
+			players[i].hand.push(pile.pop());
+			checkPile();
+		}
+		playerdata[turn].cardsInHand = players[turn].hand.length;
+		updateState();
+	}
   });
-  //Debug
-  socket.on('uno2', function () {
-    message(`played uno 712`);
-  });
-  //Debug
-  socket.on('catch0', function () {
-    message(`played uno 610`);
-  });
-  //Debug
-  socket.on('catch1', function () {
-    message(`played uno 611`);
-  });
-  //Debug
-  socket.on('catch2', function () {
-    message(`played uno 612`);
-  });
+  }
+  
+  
 
   //user picks up a card
   socket.on('pickup', function (uuid) {
@@ -152,6 +151,7 @@ io.on('connection', function (socket) {
 	  dontWaitUpCard = pickupCard;
       challengeEnabled = false; // Turn off challenge of wild if someone picks up.
       nextTurn();
+	  playerdata[turn].uno = false;
 	  playerdata[turn].cardsInHand = players[turn].hand.length;
       updateState()
     }
@@ -201,7 +201,8 @@ io.on('connection', function (socket) {
         players[previousPlayerIndex].hand.push(pile.pop());
         checkPile();
         players[previousPlayerIndex].hand.push(pile.pop());
-        checkPile();
+        checkPile();		
+		playerdata[previousPlayerIndex].uno = false;
       }
 
       //this player now chooses the colour
@@ -218,6 +219,7 @@ io.on('connection', function (socket) {
         checkPile();
         players[turn].hand.push(pile.pop());
         checkPile();
+		playerdata[turn].uno = false;
       }
       else if (discard.slice(-1).pop().includes('wild_pick')) {
         players[turn].hand.push(pile.pop());
@@ -228,6 +230,7 @@ io.on('connection', function (socket) {
         checkPile();
         players[turn].hand.push(pile.pop());
         checkPile();
+		playerdata[turn].uno = false;
       }
 
     }
@@ -256,6 +259,7 @@ io.on('connection', function (socket) {
 	dontWaitUpCard = '';
     nextTurn(false);
 	playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+	playerdata[playerIndex].uno = false;
     updateState();
   });
 
