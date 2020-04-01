@@ -52,7 +52,6 @@ var turn = 0;
 var dontWaitUp = null;
 var dontWaitUpCard = '';
 var reverseDirection = false;
-var prevWildColour = null;
 var dealer = 0;
 var inProgress = false;
 var challengeEnabled = false;
@@ -153,7 +152,6 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       //is this called?
       currentColour = wildColour;
-      prevWildColour = wildColour;
       updateState();
     } else {
       playCard(card, uuid, wildColour);
@@ -281,7 +279,6 @@ io.on('connection', function (socket) {
     dontWaitUp = null;
 	dontWaitUpCard = '';
     reverseDirection = false;
-    prevWildColour = null;
     dealer = 0;
     inProgress = false;
     challengeEnabled = false;
@@ -338,8 +335,6 @@ function deal() {
   } else {
     // Choose colour
   }
-
-  prevWildColour = wildColour;
 
   //draw two
   if (topCard.includes('picker')) {
@@ -529,7 +524,6 @@ function playCard(card, uuid, wildColour = null) {
   if (!card.includes('wild')) {
     currentColour = cardColour(card);
   }
-  prevWildColour = currentColour;
 
   //add card to discard
   discard.push(card);
@@ -553,18 +547,7 @@ function playCard(card, uuid, wildColour = null) {
 //check if the card is playable
 function isPlayable(card) {
   //same colour, number or is a wild
-  let topCard = discard.slice(-1).pop() || ' ';
-  let BtopCard = discard.slice(-1).pop();
-  let CTopCard = discard.slice(-1).pop();
-    message(`${topCard} topcard`);
-    message(`${BtopCard} topcard`);
-    message(`${CTopCard} otherTopCard`);
-    message(`${card} card`);
-    message(`${prevWildColour} prevWildColour`);
-  //ASHBY - When this is checked when the player has played out of turn (Don't wait up), sometimes it works, and sometimes isPlayable is returned true.
-  //It is returned true because topcard resolves ' ', BTopCard resolves as undefined, CTopCard as undefined.
-  //Sooo... how can the discard deck not be available? Its a global, so it should be available for all players...
-  
+  let topCard = discard.slice(-1).pop() || ' '; 
   let cardsets = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'picker', 'skip', 'reverse'];
   let colours = ['yellow', 'blue', 'red', 'green'];
   let valid = false;
@@ -575,7 +558,7 @@ function isPlayable(card) {
     colours.forEach(colour => {
       cardsets.forEach(cardset => {
         valid = valid || (topCard.includes(colour) && card.includes(colour))
-          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(prevWildColour));
+          || (topCard.includes(cardset) && card.includes(cardset)) || (card.includes(currentColour));
       });
     });
   }
