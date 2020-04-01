@@ -16,13 +16,28 @@
   var playedWild = '';
   var playerdata = [];
 
-  //socket
-  /*
-  var host = $('#externalIp').text();
-  var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-  var socketurl = `${webSocketHost}${host}:65080`;
-  console.log(socketurl);
-  */
+
+  var debugEnabled = false;
+  debugEnabled = getUrlParameter('debug');
+  console.log(debugEnabled);
+
+ function getUrlParameter(sParam ) {
+    var sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        }
+    }
+};
+
+
+  //open socket
   var socket = io();
   socket.on('connect', () => {
     //on socket connection
@@ -49,22 +64,22 @@
       socket.emit('reset', uuid);
     });
 
-   /* 	for (let i = 0; i < 5; i++) {
-    		//$("#uno"+${i}+"_but").click(function () {
-    		//socket.emit("uno"+${i}+"_but");
-			let thisString = "#uno"+i+"_but";
-			let thisSecondString = "uno"+i;
-			console.log(thisSecondString);
-   
-			 $(thisString).click(function () {
-				socket.emit(thisSecondString, uuid);
-			});			
-			
-    		};
-    */	
+    /* 	for (let i = 0; i < 5; i++) {
+         //$("#uno"+${i}+"_but").click(function () {
+         //socket.emit("uno"+${i}+"_but");
+       let thisString = "#uno"+i+"_but";
+       let thisSecondString = "uno"+i;
+       console.log(thisSecondString);
+    
+        $(thisString).click(function () {
+         socket.emit(thisSecondString, uuid);
+       });			
+     	
+         };
+     */
 
     $("#uno1_but").click(function () {
-     socket.emit('uno8', uuid);
+      socket.emit('uno8', uuid);
     });
 
 
@@ -91,7 +106,7 @@
       console.log('namechange')
       socket.emit('namechange', { uuid: uuid, name: $("#playerName").val() });
     });
-	
+
     //update state of misc items
     socket.on('state', data => {
       let discardTop = data.discardTop;
@@ -119,8 +134,8 @@
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
 
-	  	console.log(playerdata);
-	  
+      console.log(playerdata);
+
       //update discard pile
       $("#discardTop").empty();
       let card = $('<img/>',
@@ -136,9 +151,9 @@
       } else {
         $("#challenge").hide();
       }
-	  
-	  //only allow reset if debug
-      if (("debug" == $("#playerName").val())) {
+
+      //only allow reset if debug
+      if (("debug" == $("#playerName").val()) || debugEnabled == 'true') {
         $("#resetbut").show();
       } else {
         $("#resetbut").hide();
@@ -208,7 +223,7 @@
         playedWild = 'deal';
         $("#colours").show();
       }
-		
+
       //clear playertable
       $('#playertable').empty();
       //add title row
@@ -272,8 +287,6 @@
 
 
   });
-
-
 
 </script>
 
