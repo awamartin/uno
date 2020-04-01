@@ -1,14 +1,9 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00b7ff;
-}
-
-.cards {
-  font-size: 140px;
 }
 
 .button {
@@ -32,7 +27,7 @@ a {
   color: white;
 } /* Red */
 .green_but {
-  background-color: #4caf50;
+  background-color: #2fe29b;
   color: white;
 } /* Green */
 .yellow_but {
@@ -41,4 +36,84 @@ a {
 
 div.c {
   text-transform: capitalize;
+}
+
+.titleblock{
+  width : 100%;
+  background-color: #333333;
+}
+
+.title {
+  font: 36px "Roboto", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  color:white;
+  padding-left:30px;
+  padding-top:60px;
+  padding-bottom:20px;
+}
+
+.decorative-red{
+  height: 10px;
+  width: 25%;
+  background-color: #f56462;
+}
+.decorative-green{
+  height: 10px;
+  width: 25%;
+  background-color: #2fe29b;
+}
+.decorative-blue{
+  height: 10px;
+  width: 25%;
+  background-color: #00c3e5;
+}
+.decorative-yellow{
+  height: 10px;
+  width: 25%;
+  background-color: #f7e359;
+}
+
+.main{
+ padding : 30px;
+}
+
+.btn {
+  background-color: #888888;
+  margin: 5px 0 5px 0;
+}
+
+.gamebuttons {
+  margin-bottom: 15px;
+}
+
+.gamestats {
+  display:flex;
+  flex-direction: row;
+}
+
+.statlabel{
+  font-size: 14px;
+  color: black;
+
+}
+
+.stattext{
+  color: #777777;
+  padding-top: 3px;
+}
+
+.gscol1{
+  width: 50%;
+}
+
+.gscol2{
+  width: 50%;
+}
+
+.sectiontitle {
+  border-bottom: 1px solid #9e9e9e;
+  height: 2rem;
+  margin: 15px 0 8px 0;
+  line-height: 1.15;
+  font-size: 16px;
 }

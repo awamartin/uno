@@ -3,6 +3,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 <script type="module">
   import Cookies from 'https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.mjs'
   //get uuid, store a new hash if one does not exist
@@ -176,6 +179,7 @@
         //show Your Turn text
         if (playerNext == $("#playerName").val()) {
           $("#yourturn").show();
+          $("discardTop").addClass('pulse');
           if (!drawEnabled) {
             $("#pick_but").show();
           } else {
@@ -183,6 +187,7 @@
           }
         } else {
           $("#yourturn").hide();
+          $("discardTop").removeClass('pulse');
           $("#pick_but").hide();
         }
         //show drawCard buttons
@@ -227,7 +232,7 @@
       //dyanmically add the other players
       //EXAMPLE ONLY
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr><th >${playerdata[i].name}</th><th >${playerdata[i].cardsInHand}</th><th >${playerdata[i].wins}</th><th >${playerdata[i].score}</th><th ><button class="button" id="uno1_but">Uno! Player ${i}</button></th><th ><button class="button" id="catch${i}_but">Catch Player ${i}</button></th></tr>`);
+        $('#playertable').append(`<tr><th >${playerdata[i].name}</th><th >${playerdata[i].cardsInHand}</th><th >${playerdata[i].wins}</th><th >${playerdata[i].score}</th><th ><button class="btn" id="uno1_but">Uno! Player ${i}</button></th><th ><button class="btn" id="catch${i}_but">Catch Player ${i}</button></th></tr>`);
       }
 
       /*
@@ -266,7 +271,6 @@
           {
             src: player.hand[card],
             width: '100px',
-            class: "cards",
             click: function () {
               console.log(`played ${jQuery(this).text()}`);
               if (jQuery(this).attr('src').includes('wild')) {
@@ -295,86 +299,87 @@
 </head>
 
 <body>
-  <h1>
-    UNO Game
-  </h1>
-  <p>
-    <button class="button" id="deal_but">Deal</button>
-    <button class="button" id="pick_but" hidden="true">Pick-up</button>
-  </p>
-  <table>
-    <tbody>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Your Name: <input type="text" id="playerName"></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="yourturn"><strong>Your turn!</strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Number of Players: <label id="playerCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="currentcolour" class="c"><strong>Current Colour: <label id="currentColour"></strong>
-          </div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Next Turn: <label id="playerNext"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="yourdeal"><strong>Your deal!</strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Cards in Pile: <label id="pileCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">
-          <div hidden="true" id="clockwise"><strong>Clockwise</strong></div>
-          <div hidden="true" id="anticlockwise"><strong>Anti-Clockwise</strong></div>
-        </td>
-      </tr>
-      <tr style="height: 16px;">
-        <td style="width: 250px; height: 16px;">
-          <div>Cards in Discard: <label id="discardCount"></label></div>
-        </td>
-        <td style="width: 450px; height: 16px;">&nbsp;</td>
-      </tr>
-    </tbody>
-  </table>
-  <div>&nbsp;</div>
-  <!-- button class="button" id="uno1_but">Uno! Player x</button> -->
-  <!-- ASHBY - THE ABOVE WORKS BUT NOT IN THE TABLE -->
-  <div>The Discard Pile:</div>
-  <div id="discard" class="cards">
-    <label id="discardTop"></label>
+  <div class='titleblock z-depth-3'>
+    <div class='title'>
+      UNO Game
+    </div>
+    <div style="display:flex;">
+      <div class='decorative-red'></div>
+      <div class='decorative-green'></div>
+      <div class='decorative-blue'></div>
+      <div class='decorative-yellow'></div>
+    </div>
   </div>
-  <div hidden="true" id="colours"><button class="button blue_but" id="blue_but">Blue</button><button
-      class="button green_but" id="green_but">Green</button><button class="button red_but"
-      id="red_but">Red</button><button class="button yellow_but" id="yellow_but">Yellow</button></div>
-  <div hidden="true" id="challenge"><button class="button" id="challenge_but">Challenge</button></div>
-  <div hidden="true" id="drawCardtext">Draw Cards: <label id="drawAmount"></div>
-  <div hidden="true" id="drawCard"><button class="button" id="drawCard_but">Draw</button></div>
-  <button class="button" id="sortmyhand" hidden="true">Sort hand</button>
-  <div>Your Hand:</div>
-  <div id="hand" class="cards">
+  <div class='main'>
+    <div class='gamebuttons'>
+      <button class="btn pulse" id="deal_but">Deal</button>
+      <button class="btn" id="pick_but" hidden="true">Pick-up</button>
+    </div>
+    <div class="stattext">Your Name</br>
+      <input type="text" id="playerName">
+    </div>
+    <div class='gamestats'>
+      <div class='gscol1'>
+        <div class="stattext">Number of Players</br>
+          <label class="statlabel" id="playerCount"></label>
+        </div>
+        <div class="stattext">Next Turn</br>
+          <label class="statlabel" id="playerNext"></label>
+        </div>
+        <div hidden="true" id="clockwise" class="stattext">Play Direction</br>
+          <label class="statlabel">Clockwise</label>
+        </div>
+        <div hidden="true" id="anticlockwise" class="stattext">Play Direction</br>
+          <label class="statlabel">Anti-Clockwise</label>
+        </div>
+      </div>
+      <div class='gscol1'>
+        <div class="stattext">Cards in Pile</br>
+          <label class="statlabel" id="pileCount"></label>
+        </div>
+        <div class="stattext">Cards in Discard Pile</br>
+          <label class="statlabel" id="discardCount"></label>
+        </div>
+        <div hidden="true" id="currentcolour" class="stattext">Current Colour</br>
+          <label class="statlabel" id="currentColour"></label>
+        </div>
+      </div>
+    </div>
+    <span style=></span>
+    <div class='textarea sectiontitle'>The Discard Pile</div>
+    <div id="discard" class="">
+      <div id='yourturn' class="btn pulse">Your Turn</div>
+      <div id="discardTop" class=""></div>
+    </div>
+    <div hidden="true" id="colours">
+      <button class="btn blue_but " id="blue_but">Blue</button>
+      <button class="btn green_but" id="green_but">Green</button>
+      <button class="btn red_but" id="red_but">Red</button>
+      <button class="btn yellow_but " id="yellow_but">Yellow</button>
+    </div>
+    <div hidden="true" id="challenge">
+      <button class="btn" id="challenge_but">Challenge</button>
+    </div>
+    <div hidden="true" id="drawCardtext" class="stattext">Draw Cards</br><label class="statlabel" id="drawAmount"></div>
+    <div hidden="true" id="drawCard">
+      <button class="btn" id="drawCard_but">Draw</button>
+    </div>
 
-  </div>
-  <div>
-    <table id="playertable"></table>
-  </div>
-  <div>
-    Log:
-  </div>
-  <div id="messages">
+    <div class='textarea sectiontitle'>Your Hand</div>
+    <div id="hand">
 
-  </div>
-  <div hidden="true" id="resetbut"><button class="button" id="reset_but">Reset Game</button></div>
+    </div>
+    <button class="btn" id="sortmyhand" hidden="true">Sort hand</button>
+    <div class='textarea sectiontitle'>Scores</div>
+    <div>
+      <table id="playertable"></table>
+    </div>
+    <div class='textarea sectiontitle'>Log</div>
+    <div id="messages">
 
+    </div>
+    <div hidden="true" id="resetbut"><button class="btn" id="reset_but">Reset Game</button></div>
+  </div>
 </body>
 
 </html>
