@@ -294,7 +294,7 @@
 			class: "button",
 			id: "uno" + i + "_but",
 			click: function () {
-              socket.emit('uno' + i);
+              socket.emit('uno',i);
               
 			}
 		});
@@ -309,7 +309,7 @@
 			class: "button",
 			id: "catch" + i + "_but",
 			click: function () {
-              socket.emit('catch' + i);
+              socket.emit('catch',i);
               
 			}
 		});

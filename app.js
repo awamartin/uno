@@ -60,6 +60,7 @@ var drawAmount = 0;
 var slapdownCounter = 0;
 var wildColour = ' ';
 var currentColour = ' ';
+var playerIndex = null;
 var prevCurrentColour = ' ';
 
 //open a socket
@@ -117,26 +118,27 @@ io.on('connection', function (socket) {
   });
 
   //uno and catch
-  for (let i=0; i<players.length; i++){
-	  socket.on('uno'+i, function () {
-    message(`played uno ${i}`);
-	if (players[i].hand.length == 1) {
-		playerdata[i].uno = true;
-	}
-  });
-	  socket.on('catch'+i, function () {
-    message(`played catch ${i}`);
-	if ((players[i].hand.length == 1) && (!playerdata[i].uno)) {
-		playerdata[i].uno = false;
-		for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
-			players[i].hand.push(pile.pop());
-			checkPile();
-		}
-		playerdata[turn].cardsInHand = players[turn].hand.length;
+  socket.on('uno', function (playerIndex) {
+    message(`uno ${playerIndex}`);
+	if (players[playerIndex].hand.length == 1) {
+		playerdata[playerIndex].uno = true;
 		updateState();
 	}
   });
-  }
+	  socket.on('catch', function (playerIndex) {
+    message(`catch ${playerIndex}`);
+	if ((players[playerIndex].hand.length == 1) && (!playerdata[playerIndex].uno)) {
+		playerdata[playerIndex].uno = false;
+		for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
+			players[playerIndex].hand.push(pile.pop());
+			checkPile();
+		}
+		playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+		updateState();
+	}
+	
+  });
+  
   
   
 
@@ -150,10 +152,10 @@ io.on('connection', function (socket) {
 	  dontWaitUp = uuid;	
 	  dontWaitUpCard = pickupCard;
       challengeEnabled = false; // Turn off challenge of wild if someone picks up.
-      nextTurn();
-	  playerdata[turn].uno = false;
+      playerdata[turn].uno = false;
 	  playerdata[turn].cardsInHand = players[turn].hand.length;
-      updateState()
+	  nextTurn();
+      updateState();
     }
     else {
       message(`${uuidToName(uuid)} played out of turn`);
