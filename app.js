@@ -116,9 +116,29 @@ io.on('connection', function (socket) {
     }
   });
 
-  //user start a new game
-  socket.on('uno8', function (uuid) {
-    message(`${uuidToName(uuid)} played uno 1`);
+  //Debug
+  socket.on('uno0', function () {
+    message(`played uno 710`);
+  });
+  //Debug
+  socket.on('uno1', function () {
+    message(`played uno 711`);
+  });
+  //Debug
+  socket.on('uno2', function () {
+    message(`played uno 712`);
+  });
+  //Debug
+  socket.on('catch0', function () {
+    message(`played uno 610`);
+  });
+  //Debug
+  socket.on('catch1', function () {
+    message(`played uno 611`);
+  });
+  //Debug
+  socket.on('catch2', function () {
+    message(`played uno 612`);
   });
 
   //user picks up a card
