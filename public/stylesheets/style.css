@@ -78,7 +78,8 @@ div.c {
 }
 
 .btn {
-  background-color: #666666;
+  background-color: #dddddd;
+  color: black;
   margin: 5px 0 5px 0;
   font-size: 14px;
 }
@@ -118,6 +119,23 @@ div.c {
   line-height: 1.15;
   font-size: 16px;
 }
-  .yourturnbut{
-    background-color: #666666;
-  }
+
+.yourturnbut{
+  position: absolute;
+  width:100px;
+  height:140px;
+  background-color: #dddddd;
+  color: black;
+  margin: 0;
+  z-index: 0;
+}
+
+.discard{
+  height: 150px;
+}
+
+.discardTop{
+  position: absolute;
+  z-index: 1;
+}
+
