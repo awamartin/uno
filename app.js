@@ -588,6 +588,7 @@ function playCard(card, uuid, wildColour = null) {
     //dont draw 2 on next player
     drawAmount = 0;
     drawEnabled = false;
+    challengeEnabled = false;
   }
   nextTurn(skip);
 
