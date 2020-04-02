@@ -54,6 +54,9 @@
     $("#pick_but").click(function () {
       socket.emit('pickup', uuid);
     });
+    $("#uno_but").click(function () {
+      socket.emit('uno', uuid);
+    });
     $("#sortmyhand").click(function () {
       socket.emit('sort', uuid);
     });
@@ -82,7 +85,7 @@
      */
 
     $("#uno1_but").click(function () {
-      socket.emit('uno8', uuid);
+      socket.emit('uno7', uuid);
     });
 
 
@@ -162,9 +165,11 @@
         $("#resetbut").hide();
       }
 
+      console.log("hello");
       //show Your Deal text
       if (inProgress) {
         $("#sortmyhand").show();
+        $("#uno_but").show();
         $("#yourdeal").hide();
         $("#deal_but").hide();
         $("#currentcolour").show();
@@ -200,7 +205,55 @@
           $("#drawCardtext").hide();
         }
 
+		console.log(playerNext);
+		console.log($("#playerName").val());
+		
+		//show uno buttons
+        if ((playerNext == $("#playerName").val())) {
+      console.log("yes");
+          $("#uno0_but").show();
+          $("#uno1_but").show();
+          $("#uno2_but").show();
+        } else {
+      console.log("no");
+          $("#uno0_but").hide();
+          $("#uno1_but").hide();
+          $("#uno2_but").hide();
+        }
+
+		
+        //sdynamic show uno buttons
+
+/*
+
+        if ((playerNext == $("#playerName").val())) {
+          for (let i = 0; i < playerCount; i++) {
+		  
+					let testt = "uno" + i + "_but";
+			if (i == playernext){
+					$(testt).show();
+				} else{
+					$(testt).hide();
+				
+				}
+				
+			}
+        } else {
+          for (let i = 0; i < playerCount; i++) {
+		  
+					let testt = "uno" + i + "_but";
+			if (i == playernext){
+					$(testt).hide();
+				} else{
+					$(testt).hide();
+				
+				}
+        }
+		}
+
+		*/
       } else {
+        $("#uno_but").hide();
         $("#sortmyhand").hide();
         $("#challenge").hide();
         $("#drawCardtext").hide();
@@ -225,16 +278,50 @@
         $("#colours").show();
       }
 
+	  
+
+	  
+	  
+	  
+	  
       //clear playertable
       $('#playertable').empty();
       //add title row
-      $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th><th >Uno!</th><th >Catch!</th></tr>`);
+      $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th></tr>`);
+      //dyanmically add the other players
+      for (let i = 0; i < playerCount; i++) {
+		$('#playertable').append(`<tr><th>${playerdata[i].name}</th><th>${playerdata[i].cardsInHand}</th><th>${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
+      }
+
+	   
+	  
+	  
+      //clear playertable
+      $('#unotable').empty();
+      //add title row
+      $('#unotable').append(`<tr><th >Catch!</th></tr>`);
       //dyanmically add the other players
       //EXAMPLE ONLY
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr><th >${playerdata[i].name}</th><th >${playerdata[i].cardsInHand}</th><th >${playerdata[i].wins}</th><th >${playerdata[i].score}</th><th ><button class="btn" id="uno1_but">Uno! Player ${i}</button></th><th ><button class="btn" id="catch${i}_but">Catch Player ${i}</button></th></tr>`);
-      }
+     
+		
+		let catchbutton;
+		catchbutton = $('<button/>',
+		{
+			text: "Catch " + playerdata[i].name,
+			class: "button",
+			id: "catch" + i + "_but",
+			click: function () {
+              socket.emit('catch',i);
+              
+			}
+		});	  	
+		
+		$('#unotable').append(`<tr><th>`,catchbutton,`</th></tr>`);
 
+		
+      }
+	  
       /*
       notes:
       Control the look and feel of the table (row size etc) by changing the css class
