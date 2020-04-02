@@ -127,12 +127,14 @@ io.on('connection', function (socket) {
 	}
   });
 	  socket.on('catch', function (playerIndex) {
-    message(`catch ${playerIndex}`);
+    message(`someone tried to catch player ${playerIndex}`);
 	if ((players[playerIndex].hand.length == 1) && (!playerdata[playerIndex].uno)) {
 		playerdata[playerIndex].uno = false;
+        message(`${playerIndex} was caught, no penalty today`);
 		for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
-			players[playerIndex].hand.push(pile.pop());
-			checkPile();
+		//	temporarily commented out until timer implemented
+		//  players[playerIndex].hand.push(pile.pop());
+		//	checkPile();
 		}
 		playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
 		updateState();
