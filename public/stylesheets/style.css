@@ -102,6 +102,7 @@ div.c {
 .stattext{
   color: #777777;
   padding-top: 3px;
+  text-transform: capitalize;
 }
 
 .gscol1{
