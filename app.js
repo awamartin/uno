@@ -212,6 +212,7 @@ io.on('connection', function (socket) {
 
     }
     challengeEnabled = false;
+    drawAmount = 0;
     drawEnabled = false;
     dontWaitUp = null;
     dontWaitUpCard = '';
@@ -363,7 +364,7 @@ function deal() {
   nextTurn(skip);
 
   inProgress = true;
-  //turn = nextPlayer(dealer);
+  turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
 
@@ -379,6 +380,11 @@ function updateAllPlayers() {
 
 //update everything to each player
 function updateState() {
+  //update cards in hand
+  playerdata.forEach((player, playerindex) => {
+    playerdata[playerindex].cardsInHand = players[playerindex].hand.length;
+  });
+
   updateAllPlayers();
   let discardTop = discard.slice(-1).pop() || ' ';
   let playerNext = players[turn].name;
@@ -536,8 +542,10 @@ function playCard(card, uuid, wildColour = null) {
     inProgress = false;
     updateScore();
     playerdata[playerIndex].wins += 1;
+    //dont draw 2 on next player
+    drawAmount = 0;
+    drawEnabled = false;
   }
-  playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
   nextTurn(skip);
 
   updateState();
