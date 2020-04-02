@@ -90,6 +90,24 @@ io.on('connection', function (socket) {
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: `Player ${players.length + 1}`, uno: false });
+      let newplayerindex = uuidToIndex(uuid);
+      if(inProgress){
+        message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+        players[newplayerindex].hand.push(pile.pop());
+        checkPile();
+      }
     }
     updateState();
   });
