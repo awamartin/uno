@@ -187,7 +187,7 @@ io.on('connection', function (socket) {
     let uuid = data.uuid;
     let card = data.card;
     wildColour = data.wildColour;
-    message(`${uuidToName(uuid)} played card - ${card}`);
+    //message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       //is this called?
