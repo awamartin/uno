@@ -91,7 +91,7 @@ io.on('connection', function (socket) {
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: `Player ${players.length + 1}`, uno: false });
       let newplayerindex = uuidToIndex(uuid);
-      if(inProgress){
+      if (inProgress) {
         message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
         players[newplayerindex].hand.push(pile.pop());
         checkPile();
@@ -136,32 +136,32 @@ io.on('connection', function (socket) {
 
   //uno and catch
   socket.on('uno', function (uuid) {
-	let playerIndex = null;
+    let playerIndex = null;
     playerIndex = uuidToIndex(uuid);
     message(`uno ${playerIndex}`);
-	if (players[playerIndex].hand.length == 1) {
-		playerdata[playerIndex].uno = true;
-		updateState();
-	}
+    if (players[playerIndex].hand.length == 1) {
+      playerdata[playerIndex].uno = true;
+      updateState();
+    }
   });
-	  socket.on('catch', function (playerIndex) {
+  socket.on('catch', function (playerIndex) {
     message(`someone tried to catch player ${playerIndex}`);
-	if ((players[playerIndex].hand.length == 1) && (!playerdata[playerIndex].uno)) {
-		playerdata[playerIndex].uno = false;
-        message(`${playerIndex} was caught, no penalty today`);
-		for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
-		//	temporarily commented out until timer implemented
-		//  players[playerIndex].hand.push(pile.pop());
-		//	checkPile();
-		}
-		playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
-		updateState();
-	}
-	
+    if ((players[playerIndex].hand.length == 1) && (!playerdata[playerIndex].uno)) {
+      playerdata[playerIndex].uno = false;
+      message(`${playerIndex} was caught, no penalty today`);
+      for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
+        //	temporarily commented out until timer implemented
+        //  players[playerIndex].hand.push(pile.pop());
+        //	checkPile();
+      }
+      playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+      updateState();
+    }
+
   });
-  
-  
-  
+
+
+
 
   //user picks up a card
   socket.on('pickup', function (uuid) {
@@ -221,8 +221,8 @@ io.on('connection', function (socket) {
         players[previousPlayerIndex].hand.push(pile.pop());
         checkPile();
         players[previousPlayerIndex].hand.push(pile.pop());
-        checkPile();		
-		playerdata[previousPlayerIndex].uno = false;
+        checkPile();
+        playerdata[previousPlayerIndex].uno = false;
       }
 
       //this player now chooses the colour
@@ -239,7 +239,7 @@ io.on('connection', function (socket) {
         checkPile();
         players[turn].hand.push(pile.pop());
         checkPile();
-		playerdata[turn].uno = false;
+        playerdata[turn].uno = false;
       }
       else if (discard.slice(-1).pop().includes('wild_pick')) {
         players[turn].hand.push(pile.pop());
@@ -250,7 +250,7 @@ io.on('connection', function (socket) {
         checkPile();
         players[turn].hand.push(pile.pop());
         checkPile();
-		playerdata[turn].uno = false;
+        playerdata[turn].uno = false;
       }
 
     }
@@ -279,7 +279,7 @@ io.on('connection', function (socket) {
     dontWaitUp = null;
     dontWaitUpCard = '';
     nextTurn(false);
-	playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+    playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
     updateState();
   });
 
@@ -482,6 +482,11 @@ function playCard(card, uuid, wildColour = null) {
   //player's turn
   let playerIndex = null;
 
+  if (!inProgress) {
+    message(`${uuidToName(uuid)} - tried to play after the game ended`);
+    return;
+  }
+
   if ((players[turn].uuid != uuid)) {
     message(`${uuidToName(uuid)} - played out of turn!`);
     if (isSlapdown(card)) {
@@ -507,8 +512,6 @@ function playCard(card, uuid, wildColour = null) {
   } else {
     playerIndex = turn;
   }
-
-
 
   //player must draw or challenge
   if (challengeEnabled && drawEnabled) {
@@ -582,13 +585,24 @@ function playCard(card, uuid, wildColour = null) {
   //check for win
   if (players[playerIndex].hand.length == 0) {
     message(`${uuidToName(uuid)} won the game`);
+    //if there are cards to draw, draw them for the next player
+    if (drawEnabled) {
+      let drawIndex = nextPlayer(turn, reverseDirection);
+      for (let draws = 0; draws < drawAmount; draws++) {
+        players[drawIndex].hand.push(pile.pop());
+        checkPile();
+      }
+    }
+    //cancel all interim states
+    drawAmount = 0;
+    drawEnabled = false;
+    challengeEnabled = false;
+
     inProgress = false;
     updateScore();
     playerdata[playerIndex].wins += 1;
     //dont draw 2 on next player
-    drawAmount = 0;
-    drawEnabled = false;
-    challengeEnabled = false;
+
   }
   nextTurn(skip);
 

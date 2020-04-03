@@ -22,9 +22,6 @@ Currently running at http://40.127.69.20:8080/
 - Put Catch and Uno back in
 
 # Things from first trial game
-
-
-2. Shouldnt be able to play after game win
 3. When Uno in, show coloured row when in Uno, show coloured row when you won the game.
 4. Kill player on timeout/disconnect
 5. Colour selector click doesnt seem to work on first click.
@@ -34,6 +31,4 @@ Currently running at http://40.127.69.20:8080/
 13. Remove Log of player tried to play card.
 14. Game over and highlight winner at 500.
 15. Click wild out of turn, dont show colours.
-16. +2, +4 on last turn needs to count in score, and without showing challenge for +4. Ensure it doesnt apply next game! Also ensure challenge doesnt show next game.
-17. Two people can win, which causes score of others to double. Resolved if noone can play after win.
  
