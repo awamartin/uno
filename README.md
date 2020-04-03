@@ -19,23 +19,17 @@ Currently running at http://40.127.69.20:8080/
 # To Do
 
 - uno button/uno challenge rules - CC
-- player joining half way through gets to play with 0/1 pickup cards
-- pick up / don't wait up.
 - Put Catch and Uno back in
 
 # Things from first trial game
 
-1. +4 followed by +2 resulted in +6.
+
 2. Shouldnt be able to play after game win
 3. When Uno in, show coloured row when in Uno, show coloured row when you won the game.
 4. Kill player on timeout/disconnect
 5. Colour selector click doesnt seem to work on first click.
 6. Move pick up button next to sort hand button.
-7. Cards in hand gets out of date.
-8. +2 played last doesnt go to hand. Did go to first turn next game.
 9. Show colour/something in row if person played slapdown, skip etc.
-10. pick up doesnt update card hand length
-11. You can get first turn after dealing
 12. Add Game Counter. Perhaps total row at bottom of table?
 13. Remove Log of player tried to play card.
 14. Game over and highlight winner at 500.
