@@ -178,8 +178,9 @@ io.on('connection', function (socket) {
     else {
       message(`${uuidToName(uuid)} played out of turn`);
     }
-
     checkPile();
+    nextTurn(false);
+    updateState();
   });
 
   //user plays a card
@@ -438,7 +439,10 @@ function updateState() {
     //is turn
     playerdata[playerindex].isTurn = (playerindex == turn) && inProgress;
     //is turn
-    playerdata[playerindex].isUno = players[playerindex].hand.length == 0 && inProgress; //TODO replace this with the acutal uno state
+    playerdata[playerindex].isUno = players[playerindex].hand.length == 1 && inProgress; //TODO replace this with the acutal uno state
+    //won
+    playerdata[playerindex].isWinner = players[playerindex].hand.length == 0 && !inProgress && playerdata[playerindex].wins > 0;
+
   });
 
   updateAllPlayers();

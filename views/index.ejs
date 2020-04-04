@@ -40,6 +40,8 @@
   };
 
 
+
+  
   //open socket
   var socket = io();
   socket.on('connect', () => {
@@ -180,7 +182,10 @@
         }
         //show Your Turn text
         if (playerNext == $("#playerName").val()) {
-
+          $("#yourturn").show();
+          $("#uno0_but").show();
+          $("#uno1_but").show();
+          $("#uno2_but").show();
           $("discardTop").addClass('pulse');
           if (!drawEnabled) {
             $("#pick_but").show();
@@ -190,6 +195,10 @@
         } else {
           $("discardTop").removeClass('pulse');
           $("#pick_but").hide();
+          $("#yourturn").hide();
+          $("#uno0_but").hide();
+          $("#uno1_but").hide();
+          $("#uno2_but").hide();
         }
         //show drawCard buttons
         if (drawEnabled && (playerNext == $("#playerName").val())) {
@@ -262,7 +271,7 @@
       $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th></tr>`);
       //dyanmically add the other players
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th>${playerdata[i].cardsInHand}</th><th>${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
+        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th id="cardscell${i}">${playerdata[i].cardsInHand}</th><th id="winscell${i}">${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
       }
       //clear playertable
       $('#unotable').empty();
@@ -291,29 +300,29 @@
 
       //highlight rows of playertable
       playerdata.forEach((player, playerindex) => {
-        if (player.isUno) {
-          $(`#playerrow${playerindex}`).addClass('row_isUno');
-          $(`#playerrow${playerindex}`).addClass('z-depth-1');
-
-        } else {
-          $(`#playerrow${playerindex}`).removeClass('row_isUno');
-          $(`#playerrow${playerindex}`).removeClass('z-depth-1');
-        }
-
         if (player.isTurn) {
-          $("#yourturn").show();
-          $("#uno0_but").show();
-          $("#uno1_but").show();
-          $("#uno2_but").show();
-          $(`#playerrow${playerindex}`).addClass('row_isTurn');
+          $(`#playerrow${playerindex}`).addClass('r_isTurn');
           $(`#playerrow${playerindex}`).addClass('z-depth-1');
         } else {
-          $("#yourturn").hide();
-          $(`#playerrow${playerindex}`).removeClass('row_isTurn');
+          $(`#playerrow${playerindex}`).removeClass('r_isTurn');
           $(`#playerrow${playerindex}`).removeClass('z-depth-1');
-          $("#uno0_but").hide();
-          $("#uno1_but").hide();
-          $("#uno2_but").hide();
+       
+        }
+        if (player.isUno) {
+          $(`#cardscell${playerindex}`).addClass('c_isUno');
+          $(`#cardscell${playerindex}`).addClass('z-depth-1');
+
+        } else {
+          $(`#cardscell${playerindex}`).removeClass('c_isUno');
+          $(`#cardscell${playerindex}`).removeClass('z-depth-1');
+        }
+        if (player.isWinner) {
+          $(`#winscell${playerindex}`).addClass('c_isWinner');
+          $(`#winscell${playerindex}`).addClass('z-depth-1');
+
+        } else {
+          $(`#winscell${playerindex}`).removeClass('c_isWinner');
+          $(`#winscell${playerindex}`).removeClass('z-depth-1');
         }
 
 
