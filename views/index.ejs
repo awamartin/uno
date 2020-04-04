@@ -157,15 +157,12 @@
       } else {
         $("#challenge").hide();
       }
-
       //only allow reset if debug
       if (("debug" == $("#playerName").val()) || debugEnabled == 'true') {
         $("#resetbut").show();
       } else {
         $("#resetbut").hide();
       }
-
-      console.log("hello");
       //show Your Deal text
       if (inProgress) {
         $("#sortmyhand").show();
@@ -183,7 +180,7 @@
         }
         //show Your Turn text
         if (playerNext == $("#playerName").val()) {
-          $("#yourturn").show();
+
           $("discardTop").addClass('pulse');
           if (!drawEnabled) {
             $("#pick_but").show();
@@ -191,7 +188,6 @@
             $("#pick_but").hide();
           }
         } else {
-          $("#yourturn").hide();
           $("discardTop").removeClass('pulse');
           $("#pick_but").hide();
         }
@@ -204,54 +200,36 @@
           $("#drawCard").hide();
           $("#drawCardtext").hide();
         }
-
-		console.log(playerNext);
-		console.log($("#playerName").val());
-		
-		//show uno buttons
-        if ((playerNext == $("#playerName").val())) {
-      console.log("yes");
-          $("#uno0_but").show();
-          $("#uno1_but").show();
-          $("#uno2_but").show();
-        } else {
-      console.log("no");
-          $("#uno0_but").hide();
-          $("#uno1_but").hide();
-          $("#uno2_but").hide();
-        }
-
-		
         //sdynamic show uno buttons
 
-/*
-
-        if ((playerNext == $("#playerName").val())) {
-          for (let i = 0; i < playerCount; i++) {
-		  
-					let testt = "uno" + i + "_but";
-			if (i == playernext){
-					$(testt).show();
-				} else{
-					$(testt).hide();
-				
-				}
-				
-			}
-        } else {
-          for (let i = 0; i < playerCount; i++) {
-		  
-					let testt = "uno" + i + "_but";
-			if (i == playernext){
-					$(testt).hide();
-				} else{
-					$(testt).hide();
-				
-				}
-        }
-		}
-
-		*/
+        /*
+        
+                if ((playerNext == $("#playerName").val())) {
+                  for (let i = 0; i < playerCount; i++) {
+              
+                  let testt = "uno" + i + "_but";
+              if (i == playernext){
+                  $(testt).show();
+                } else{
+                  $(testt).hide();
+              	
+                }
+              	
+              }
+                } else {
+                  for (let i = 0; i < playerCount; i++) {
+              
+                  let testt = "uno" + i + "_but";
+              if (i == playernext){
+                  $(testt).hide();
+                } else{
+                  $(testt).hide();
+              	
+                }
+                }
+            }
+        
+            */
       } else {
         $("#uno_but").hide();
         $("#sortmyhand").hide();
@@ -284,38 +262,64 @@
       $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th></tr>`);
       //dyanmically add the other players
       for (let i = 0; i < playerCount; i++) {
-		$('#playertable').append(`<tr><th>${playerdata[i].name}</th><th>${playerdata[i].cardsInHand}</th><th>${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
+        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th>${playerdata[i].cardsInHand}</th><th>${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
       }
       //clear playertable
       $('#unotable').empty();
       //add title row
       $('#unotable').append(`<tr><th >Catch!</th></tr>`);
       //dyanmically add the other players
-      //EXAMPLE ONLY
       for (let i = 0; i < playerCount; i++) {
-     
-		
-		let catchbutton;
-		catchbutton = $('<button/>',
-		{
-			text: "Catch " + playerdata[i].name,
-			class: "button",
-			id: "catch" + i + "_but",
-			click: function () {
-              socket.emit('catch',i);
-              
-			}
-		});	  	
-		
-		$('#unotable').append(`<tr><th>`,catchbutton,`</th></tr>`);
 
-		
+
+        let catchbutton;
+        catchbutton = $('<button/>',
+          {
+            text: "Catch " + playerdata[i].name,
+            class: "button",
+            id: "catch" + i + "_but",
+            click: function () {
+              socket.emit('catch', i);
+
+            }
+          });
+
+        $('#unotable').append(`<tr><th>`, catchbutton, `</th></tr>`);
+
+
       }
-	  
-      /*
-      notes:
-      Control the look and feel of the table (row size etc) by changing the css class
-      */
+
+      //highlight rows of playertable
+      playerdata.forEach((player, playerindex) => {
+        if (player.isUno) {
+          $(`#playerrow${playerindex}`).addClass('row_isUno');
+          $(`#playerrow${playerindex}`).addClass('z-depth-1');
+
+        } else {
+          $(`#playerrow${playerindex}`).removeClass('row_isUno');
+          $(`#playerrow${playerindex}`).removeClass('z-depth-1');
+        }
+
+        if (player.isTurn) {
+          $("#yourturn").show();
+          $("#uno0_but").show();
+          $("#uno1_but").show();
+          $("#uno2_but").show();
+          $(`#playerrow${playerindex}`).addClass('row_isTurn');
+          $(`#playerrow${playerindex}`).addClass('z-depth-1');
+        } else {
+          $("#yourturn").hide();
+          $(`#playerrow${playerindex}`).removeClass('row_isTurn');
+          $(`#playerrow${playerindex}`).removeClass('z-depth-1');
+          $("#uno0_but").hide();
+          $("#uno1_but").hide();
+          $("#uno2_but").hide();
+        }
+
+
+      });
+
+
     });
 
     //log message

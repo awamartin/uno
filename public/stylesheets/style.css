@@ -140,3 +140,10 @@ div.c {
   z-index: 1;
 }
 
+.row_isUno{
+  background-color: #f56462;
+}
+
+.row_isTurn{
+  background-color: #2fe29b;
+}

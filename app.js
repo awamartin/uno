@@ -296,7 +296,7 @@ io.on('connection', function (socket) {
 
     let invalid = false;
 
-    name = name.replace(/[\W_]+/g,"");
+    name = name.replace(/[\W_]+/g, "");
 
     players.forEach(player => {
       if (player.name == name) {
@@ -431,9 +431,14 @@ function updateAllPlayers() {
 
 //update everything to each player
 function updateState() {
-  //update cards in hand
+  //update player data
   playerdata.forEach((player, playerindex) => {
+    //update cards in hand
     playerdata[playerindex].cardsInHand = players[playerindex].hand.length;
+    //is turn
+    playerdata[playerindex].isTurn = (playerindex == turn) && inProgress;
+    //is turn
+    playerdata[playerindex].isUno = players[playerindex].hand.length == 0 && inProgress; //TODO replace this with the acutal uno state
   });
 
   updateAllPlayers();
