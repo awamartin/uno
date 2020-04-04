@@ -296,6 +296,8 @@ io.on('connection', function (socket) {
 
     let invalid = false;
 
+    name = name.replace(/[\W_]+/g,"");
+
     players.forEach(player => {
       if (player.name == name) {
         invalid = true;
