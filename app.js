@@ -186,6 +186,7 @@ io.on('connection', function (socket) {
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
+
     wildColour = data.wildColour;
     //message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
@@ -194,6 +195,11 @@ io.on('connection', function (socket) {
       currentColour = wildColour;
       updateState();
     } else {
+
+      if (clickPolice(uuid)) {
+        message(`${uuidToName(uuid)} - has been clicking too rapidly and has been temporarily throttled`);
+        return;
+      }
       playCard(card, uuid, wildColour);
     }
 
@@ -725,6 +731,26 @@ function cardColour(card) {
   if (card.includes('blue')) return 'blue';
   if (card.includes('yellow')) return 'yellow';
   if (card.includes('green')) return 'green';
+}
+
+//count the number of clicks and restrict if too many
+var clickCounter = [];
+function clickPolice(uuid, timeout_ms = 5000, limit = 5) {
+  var time = new Date().getTime();
+
+  //initialise array if it is not initialised
+  clickCounter[uuid] = (typeof clickCounter[uuid] != 'undefined' && clickCounter[uuid] instanceof Array) ? clickCounter[uuid] : []
+  //add the current time to end
+  clickCounter[uuid].push(time)
+
+  //filter to just samples within timeout
+  clickCounter[uuid] = clickCounter[uuid].filter(el => { return el > (time - timeout_ms) });
+  console.log(`Click log = ${clickCounter[uuid]}`);
+
+  //check if samples exceeds limit
+  if (clickCounter[uuid].length > limit) return true;
+
+  return false;
 }
 
 module.exports = app;
