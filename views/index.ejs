@@ -268,10 +268,10 @@
       //clear playertable
       $('#playertable').empty();
       //add title row
-      $('#playertable').append(`<tr><th >Player name</th><th >Cards in hand</th><th >Wins</th><th >Score</th></tr>`);
+      $('#playertable').append(`<tr><th >Player name</th><th class='c_center'>Cards in hand</th><th  class='c_center'>Wins</th><th  class='c_center'>Score</th></tr>`);
       //dyanmically add the other players
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th id="cardscell${i}">${playerdata[i].cardsInHand}</th><th id="winscell${i}">${playerdata[i].wins}</th><th>${playerdata[i].score}</th></tr>`);
+        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th id="cardscell${i}" class='c_center'>${playerdata[i].cardsInHand}</th><th id="winscell${i}" class='c_center'>${playerdata[i].wins}</th><th class='c_center'>${playerdata[i].score}</th></tr>`);
       }
       //clear playertable
       $('#unotable').empty();
@@ -310,19 +310,15 @@
         }
         if (player.isUno) {
           $(`#cardscell${playerindex}`).addClass('c_isUno');
-          $(`#cardscell${playerindex}`).addClass('z-depth-1');
 
         } else {
           $(`#cardscell${playerindex}`).removeClass('c_isUno');
-          $(`#cardscell${playerindex}`).removeClass('z-depth-1');
         }
         if (player.isWinner) {
           $(`#winscell${playerindex}`).addClass('c_isWinner');
-          $(`#winscell${playerindex}`).addClass('z-depth-1');
 
         } else {
           $(`#winscell${playerindex}`).removeClass('c_isWinner');
-          $(`#winscell${playerindex}`).removeClass('z-depth-1');
         }
 
 

@@ -1,21 +1,9 @@
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
 a {
   color: #00b7ff;
 }
 
-.button {
-  border: none;
-  color: black;
-  padding: 15px 32px;
+.c_center {
   text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
 }
 
 .blue_but {
@@ -44,7 +32,7 @@ div.c {
 }
 
 .title {
-  font: 36px "Roboto", Helvetica, Arial, sans-serif;
+  font-size: 36px;
   font-weight: 600;
   color:white;
   padding-left:30px;
@@ -142,12 +130,15 @@ div.c {
 
 .c_isUno{
   background-color: #f56462;
+  border-radius: 20px;
 }
 
 .r_isTurn{
   background-color: #2fe29b;
+
 }
 
 .c_isWinner{
   background-color: #f7e359;
+  border-radius: 20px;
 }
