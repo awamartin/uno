@@ -150,7 +150,7 @@
         {
           src: discardTop,
           width: '100px',
-          class: "cards"
+          class: "cards z-depth-2"
         });
       $("#discardTop").append(card);
       //show challenge buttons
@@ -357,6 +357,7 @@
           {
             src: player.hand[card],
             width: '100px',
+            class: 'cards z-depth-2',
             click: function () {
               console.log(`played ${jQuery(this).text()}`);
               if (jQuery(this).attr('src').includes('wild')) {

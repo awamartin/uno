@@ -139,3 +139,7 @@ div.c {
 .c_isWinner{
   background-color: #f7e359;
 }
+
+.cards{
+  margin-right: -10px;
+}
