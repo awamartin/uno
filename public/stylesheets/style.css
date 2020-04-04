@@ -130,15 +130,12 @@ div.c {
 
 .c_isUno{
   background-color: #f56462;
-  border-radius: 20px;
 }
 
 .r_isTurn{
   background-color: #2fe29b;
-
 }
 
 .c_isWinner{
   background-color: #f7e359;
-  border-radius: 20px;
 }
