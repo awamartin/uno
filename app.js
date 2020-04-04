@@ -450,14 +450,17 @@ function updateState() {
   let playerNext = players[turn].name;
   let dealerNext = players[dealer].name;
   io.sockets.emit('state', {
+    discard,
     discardTop,
     discardCount: discard.length,
     pileCount: pile.length,
-    playerNext, dealerNext,
+    playerNext,
+    dealerNext,
     playerCount: players.length,
-    inProgress, challengeEnabled,
+    inProgress,
+    challengeEnabled,
     slapdownCount: slapdownCounter,
-    drawAmount: drawAmount,
+    drawAmount,
     drawEnabled,
     wildColour,
     reverseDirection,

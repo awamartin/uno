@@ -41,7 +41,7 @@
 
 
 
-  
+
   //open socket
   var socket = io();
   socket.on('connect', () => {
@@ -146,13 +146,28 @@
 
       //update discard pile
       $("#discardTop").empty();
-      let card = $('<img/>',
-        {
-          src: discardTop,
-          width: '100px',
-          class: "cards z-depth-2"
-        });
-      $("#discardTop").append(card);
+      data.discard.forEach(discards => {
+        let card = $('<img/>',
+          {
+            src: discards,
+            width: '100px',
+            class: "pile-cards z-depth-2"
+          });
+        $("#discardTop").append(card);
+      })
+
+      //update pickup pile
+      $("#pickup").empty();
+      for (let pileindex = 0; pileindex < pileCount; pileindex++) {
+        let card = $('<img/>',
+          {
+            src: 'card_back_large.png',
+            width: '100px',
+            class: "pile-cards z-depth-2"
+          });
+        $("#pickup").append(card);
+      };
+
       //show challenge buttons
       if (challengeEnabled && (playerNext == $("#playerName").val())) {
         $("#challenge").show();
@@ -306,7 +321,7 @@
         } else {
           $(`#playerrow${playerindex}`).removeClass('r_isTurn');
           $(`#playerrow${playerindex}`).removeClass('z-depth-1');
-       
+
         }
         if (player.isUno) {
           $(`#cardscell${playerindex}`).addClass('c_isUno');
@@ -428,29 +443,34 @@
         </div>
       </div>
     </div>
-    <div class='textarea sectiontitle'>The Discard Pile</div>
-    <div class='discardsection'>
-      <div id="discard" class="discard">
-        <div id="discardTop" class="discardTop"></div>
-        <div id='yourturn' class="btn yourturnbut pulse">Your Turn</div>
+    <div class='textarea sectiontitle'>The Pile</div>
+    <div style='display:flex'>
+      <div style='width: 150px'>
+        <div id="discard" class="discard">
+          <div id="discardTop" class="discardTop"></div>
+          <div id='yourturn' class="btn yourturnbut pulse">Your Turn</div>
+        </div>
       </div>
-      <div hidden="true" id="colours">
-        <button class="blue_but btn" id="blue_but">Blue</button>
-        <button class="green_but btn" id="green_but">Green</button>
-        <button class="red_but btn" id="red_but">Red</button>
-        <button class="yellow_but btn" id="yellow_but">Yellow</button>
+      <div id="pickup">
       </div>
-      <div hidden="true" id="challenge">
-        <button class="btn" id="challenge_but">Challenge</button>
-      </div>
-      <div hidden="true" id="drawCardtext" class="stattext">Draw Cards</br><label class="statlabel" id="drawAmount">
-      </div>
-      <div hidden="true" id="drawCard">
-        <button class="btn pulse" id="drawCard_but">Draw</button>
-      </div>
-
-      <div class='textarea sectiontitle'>Your Hand</div>
     </div>
+    <div hidden="true" id="colours">
+      <button class="blue_but btn" id="blue_but">Blue</button>
+      <button class="green_but btn" id="green_but">Green</button>
+      <button class="red_but btn" id="red_but">Red</button>
+      <button class="yellow_but btn" id="yellow_but">Yellow</button>
+    </div>
+    <div hidden="true" id="challenge">
+      <button class="btn" id="challenge_but">Challenge</button>
+    </div>
+    <div hidden="true" id="drawCardtext" class="stattext">Draw Cards</br><label class="statlabel" id="drawAmount">
+    </div>
+    <div hidden="true" id="drawCard">
+      <button class="btn pulse" id="drawCard_but">Draw</button>
+    </div>
+
+    <div class='textarea sectiontitle'>Your Hand</div>
+
     <div id="hand">
 
     </div>
