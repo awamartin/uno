@@ -112,6 +112,20 @@ io.on('connection', function (socket) {
     updateState();
   });
 
+  //heartbeat
+  socket.on('heartbeat', function (uuid) {
+    console.log('update heartbeat')
+    let playerIndex = uuidToIndex(uuid);/*
+    clearTimeout(players[playerIndex].lastSeen || null);
+    players[playerIndex].lastSeen = setTimeout(() => {
+      message(`${uuidToName(uuid)} timed out and was removed from the game`)
+      delete players[playerIndex];
+      delete playerdata[playerIndex];
+      updateState();
+    }, 60000);*/
+  });
+
+
   //sort your hand
   socket.on('sort', function (uuid) {
     let playerIndex = null;
@@ -179,7 +193,7 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} played out of turn`);
     }
     checkPile();
-	nextTurn(false);
+    nextTurn(false);
     updateState();
   });
 
@@ -267,11 +281,10 @@ io.on('connection', function (socket) {
     dontWaitUpCard = '';
     playerdata[turn].cardsInHand = players[turn].hand.length;
     playerdata[previousPlayerIndex].cardsInHand = players[previousPlayerIndex].hand.length;
-	if((!invalid) && (discard.slice(-1).pop().includes('wild_pick')))
-	{
-		//The challenge failed, this person needs to pick up more but they don't get a turn if it's a Draw 4.
-		nextTurn(false);
-	}
+    if ((!invalid) && (discard.slice(-1).pop().includes('wild_pick'))) {
+      //The challenge failed, this person needs to pick up more but they don't get a turn if it's a Draw 4.
+      nextTurn(false);
+    }
     updateState();
   });
 
@@ -447,7 +460,7 @@ function updateState() {
     playerdata[playerindex].isWinner = players[playerindex].hand.length == 0 && !inProgress && playerdata[playerindex].wins > 0;
     //cansort
     players[playerindex].isSortable = !(JSON.stringify(players[playerindex].hand) == JSON.stringify([...players[playerindex].hand].sort()));
-    
+
   });
 
   updateAllPlayers();
@@ -717,7 +730,7 @@ function updateScore() {
 }
 //apply the next turn
 function nextTurn(skip = false) {
-	
+
   turn = nextPlayer(turn, reverseDirection);
   if (skip) turn = nextPlayer(turn, reverseDirection);
   io.sockets.emit('turn', turn);
@@ -779,9 +792,9 @@ var clickCounter = [];
 function clickPolice(uuid, timeout_ms = 5000, limit = 5) {
 
   if (!inProgress) {
-	  return false;
+    return false;
   }
-	
+
   var time = new Date().getTime();
 
   //initialise array if it is not initialised

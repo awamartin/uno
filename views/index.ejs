@@ -49,6 +49,10 @@
     console.log(socket.connected);
     socket.emit('register', uuid);
 
+    var heartbeat = setInterval(() => {
+      socket.emit('heartbeat', uuid);
+    }, 10000);
+
     //misc buttons
     $("#deal_but").click(function () {
       socket.emit('deal', uuid);
