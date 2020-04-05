@@ -163,9 +163,9 @@
           {
             src: 'card_back_large.png',
             width: '100px',
-            class: "pile-cards z-depth-2",
+            class: "pile-cards",
             click: function () {
-              socket.emit('pickup', uuid);
+              socket.emit('pickupanddraw', uuid);
             }
           });
         $("#pickup").append(card);
@@ -201,6 +201,7 @@
         //show Your Turn text
         if (playerNext == $("#playerName").val()) {
           $("#yourturn").show();
+          $("#yourpickup").show();
           $("#uno0_but").show();
           $("#uno1_but").show();
           $("#uno2_but").show();
@@ -214,6 +215,7 @@
           $("discardTop").removeClass('pulse');
           $("#pick_but").hide();
           $("#yourturn").hide();
+          $("#yourpickup").hide();
           $("#uno0_but").hide();
           $("#uno1_but").hide();
           $("#uno2_but").hide();
@@ -266,6 +268,7 @@
         $("#pick_but").hide();
         $("#currentcolour").hide();
         $("#yourturn").hide();
+        $("#yourpickup").hide();
         if (dealerNext == $("#playerName").val()) {
           $("#yourdeal").show();
           $("#deal_but").show();
@@ -456,11 +459,12 @@
       <div style='width: 150px'>
         <div id="discard" class="discard">
           <div id="discardTop" class="discardTop"></div>
-          <div id='yourturn' class="btn yourturnbut pulse">Your Turn</div>
         </div>
       </div>
-      <div id="pickup">
+	  <div id='yourturn' class="btn yourturnbut pulse">Your Turn</div>
+      <div id="pickup" class="pile-cards">
       </div>
+          
     </div>
     <div hidden="true" id="colours">
       <button class="btn blue_but" id="blue_but">Blue</button>
@@ -473,9 +477,9 @@
     </div>
     <div hidden="true" id="drawCardtext" class="stattext">Draw Cards</br><label class="statlabel" id="drawAmount">
     </div>
-    <div hidden="true" id="drawCard">
+    <!--div hidden="true" id="drawCard">
       <button class="btn pulse" id="drawCard_but">Draw</button>
-    </div>
+    </div-->
 
     <div class='textarea sectiontitle'>Your Hand</div>
 
@@ -484,7 +488,7 @@
     </div>
     <div class='gamebuttons'>
       <button class="btn pulse" id="deal_but">Deal</button>
-      <button class="btn" id="pick_but" hidden="true">Pick-up</button>
+      <!--button class="btn" id="pick_but" hidden="true">Pick-up</button-->
       <button class="btn" id="sortmyhand" hidden="true">Sort hand</button>
 	  <button class="btn" id="uno_but" hidden="true">Uno</button>
 	  <div class='gamebuttons' id="unotable"></div>

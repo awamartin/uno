@@ -160,10 +160,47 @@ io.on('connection', function (socket) {
 
   });
 
-
-
-
   //user picks up a card
+  socket.on('pickupanddraw', function (uuid) {
+    message(`${uuidToName(uuid)} picked up from the deck`);
+	if(drawEnabled) {
+		message(`${uuidToName(uuid)} - had to pick up ${drawAmount} cards`);
+		playerIndex = uuidToIndex(uuid);
+		turn = playerIndex;
+		for (let drawIndex = 0; drawIndex < drawAmount; drawIndex++) {
+		  players[playerIndex].hand.push(pile.pop());
+		  checkPile();
+		}
+		drawAmount = 0;
+		drawEnabled = false;
+		challengeEnabled = false;
+		dontWaitUp = null;
+		dontWaitUpCard = '';
+		nextTurn(false);
+		playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+		updateState();
+	} else {
+		message(`${uuidToName(uuid)} picked up a card`);
+		if (players[turn].uuid == uuid) {
+		  let pickupCard = pile.pop();
+		  players[turn].hand.push(pickupCard);
+		  //check if the player can put it down straight away
+		  dontWaitUp = uuid;
+		  dontWaitUpCard = pickupCard;
+		  challengeEnabled = false; // Turn off challenge of wild if someone picks up.
+		  playerdata[turn].uno = false;
+		  checkPile();
+		  nextTurn(false);
+		}
+    else {
+      message(`${uuidToName(uuid)} played out of turn`);
+    }
+    updateState();
+	}
+  });
+
+
+  //user picks up a card - This is the original single button command
   socket.on('pickup', function (uuid) {
     message(`${uuidToName(uuid)} picked up a card`);
     if (players[turn].uuid == uuid) {
@@ -174,12 +211,12 @@ io.on('connection', function (socket) {
       dontWaitUpCard = pickupCard;
       challengeEnabled = false; // Turn off challenge of wild if someone picks up.
       playerdata[turn].uno = false;
+      checkPile();
+	  nextTurn(false);
     }
     else {
       message(`${uuidToName(uuid)} played out of turn`);
     }
-    checkPile();
-	nextTurn(false);
     updateState();
   });
 
@@ -275,7 +312,7 @@ io.on('connection', function (socket) {
     updateState();
   });
 
-  //user plays pick two
+  //user plays pick two - This is the original single button command
   socket.on('drawCard', function (uuid) {
     message(`${uuidToName(uuid)} - had to pick up ${drawAmount} cards`);
     playerIndex = uuidToIndex(uuid);
