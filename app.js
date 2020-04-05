@@ -230,6 +230,9 @@ io.on('connection', function (socket) {
       dontWaitUpCard = pickupCard;
       challengeEnabled = false; // Turn off challenge of wild if someone picks up.
       playerdata[turn].uno = false;
+	  playerdata[turn].unotime = null;
+	  checkPile();
+	  nextTurn();	  
     }
     else {
       message(`${uuidToName(uuid)} played out of turn`);
