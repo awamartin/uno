@@ -31,3 +31,6 @@ Currently running at http://40.127.69.20:8080/
 14. Game over and highlight winner at 500.
 15. Click wild out of turn, dont show colours.
  
+Put colours back on wild buttons - DONE
++4 (Dont wait up), Challenge, still get a turn - DONE
+

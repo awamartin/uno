@@ -182,6 +182,7 @@
       }
       //show Your Deal text
       if (inProgress) {
+        $("#unotable").show();
         $("#sortmyhand").show();
         $("#uno_but").show();
         $("#yourdeal").hide();
@@ -255,6 +256,7 @@
         
             */
       } else {
+        $("#unotable").hide();
         $("#uno_but").hide();
         $("#sortmyhand").hide();
         $("#challenge").hide();
@@ -290,8 +292,6 @@
       }
       //clear playertable
       $('#unotable').empty();
-      //add title row
-      $('#unotable').append(`<tr><th >Catch!</th></tr>`);
       //dyanmically add the other players
       for (let i = 0; i < playerCount; i++) {
 
@@ -300,7 +300,7 @@
         catchbutton = $('<button/>',
           {
             text: "Catch " + playerdata[i].name,
-            class: "button",
+            class: "btn",
             id: "catch" + i + "_but",
             click: function () {
               socket.emit('catch', i);
@@ -308,7 +308,7 @@
             }
           });
 
-        $('#unotable').append(`<tr><th>`, catchbutton, `</th></tr>`);
+        $('#unotable').append(catchbutton, `  `);
 
 
       }
@@ -455,10 +455,10 @@
       </div>
     </div>
     <div hidden="true" id="colours">
-      <button class="blue_but btn" id="blue_but">Blue</button>
-      <button class="green_but btn" id="green_but">Green</button>
-      <button class="red_but btn" id="red_but">Red</button>
-      <button class="yellow_but btn" id="yellow_but">Yellow</button>
+      <button class="btn blue_but" id="blue_but">Blue</button>
+      <button class="btn green_but" id="green_but">Green</button>
+      <button class="btn red_but" id="red_but">Red</button>
+      <button class="btn yellow_but" id="yellow_but">Yellow</button>
     </div>
     <div hidden="true" id="challenge">
       <button class="btn" id="challenge_but">Challenge</button>
@@ -478,7 +478,9 @@
       <button class="btn pulse" id="deal_but">Deal</button>
       <button class="btn" id="pick_but" hidden="true">Pick-up</button>
       <button class="btn" id="sortmyhand" hidden="true">Sort hand</button>
-    </div>
+	  <button class="btn" id="uno_but" hidden="true">Uno</button>
+	  <div class='gamebuttons' id="unotable"></div>
+    </div>	
     <div class='textarea sectiontitle'>Scores</div>
     <div>
       <table id="playertable"></table>

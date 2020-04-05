@@ -6,22 +6,6 @@ a {
   text-align: center;
 }
 
-.blue_but {
-  background-color: #008cba;
-  color: white;
-} /* Blue */
-.red_but {
-  background-color: #f44336;
-  color: white;
-} /* Red */
-.green_but {
-  background-color: #2fe29b;
-  color: white;
-} /* Green */
-.yellow_but {
-  background-color: yellow;
-} /* Yellow */
-
 div.c {
   text-transform: capitalize;
 }
@@ -71,6 +55,22 @@ div.c {
   margin: 5px 0 5px 0;
   font-size: 14px;
 }
+
+.blue_but {
+  background-color: #00c3e5;
+  color: white;
+} /* Blue */
+.red_but {
+  background-color: #f56462;
+  color: white;
+} /* Red */
+.green_but {
+  background-color: #2fe29a;
+  color: white;
+} /* Green */
+.yellow_but {
+  background-color: #f7e359;
+} /* Yellow */
 
 .gamebuttons {
   margin-bottom: 15px;
