@@ -445,7 +445,9 @@ function updateState() {
     playerdata[playerindex].isUno = players[playerindex].hand.length == 1 && inProgress; //TODO replace this with the acutal uno state
     //won
     playerdata[playerindex].isWinner = players[playerindex].hand.length == 0 && !inProgress && playerdata[playerindex].wins > 0;
-
+    //cansort
+    players[playerindex].isSortable = !(JSON.stringify(players[playerindex].hand) == JSON.stringify([...players[playerindex].hand].sort()));
+    
   });
 
   updateAllPlayers();

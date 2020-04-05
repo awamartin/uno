@@ -182,7 +182,6 @@
       }
       //show Your Deal text
       if (inProgress) {
-        $("#sortmyhand").show();
         $("#uno_but").show();
         $("#yourdeal").hide();
         $("#deal_but").hide();
@@ -256,7 +255,6 @@
             */
       } else {
         $("#uno_but").hide();
-        $("#sortmyhand").hide();
         $("#challenge").hide();
         $("#drawCardtext").hide();
         $("#drawCard").hide();
@@ -336,6 +334,7 @@
           $(`#winscell${playerindex}`).removeClass('c_isWinner');
         }
 
+        
 
       });
 
@@ -363,6 +362,12 @@
       console.log(player);
       $("#hand").empty();
       $("#playerName").val(player.name);
+
+      if(player.isSortable){
+        $("#sortmyhand").show();
+      } else {
+        $("#sortmyhand").hide();
+      }
 
       //add each card to the hand
       let card;
