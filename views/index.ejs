@@ -163,7 +163,10 @@
           {
             src: 'card_back_large.png',
             width: '100px',
-            class: "pile-cards z-depth-2"
+            class: "pile-cards z-depth-2",
+            click: function () {
+              socket.emit('pickup', uuid);
+            }
           });
         $("#pickup").append(card);
       };
