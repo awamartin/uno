@@ -696,7 +696,7 @@ function playCard(card, uuid, wildColour = null) {
 		  loser = playerdata[thisPlayer].name;		
 		}
 	}
-	if(highestValue > 50) {
+	if(highestValue > 500) {
 		
 		message(`${winner} won the game with a score of ${lowestValue}. ${loser} had the highest score of ${highestValue}.`);
 		inProgress = false;
