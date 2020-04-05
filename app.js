@@ -40,7 +40,7 @@ var deck = []; //['🂡', '🂢', '🂣', '🂤', '🂥', '🂦', '🂧', '🂨'
 glob("./public/cards/*", function (er, files) {
   deck = files;
   deck.forEach((card, index, array) => array[index] = card.replace(`/public`, ``));
-  console.log(deck);
+  //console.log(deck);
 })
 
 //globals for tracking state
@@ -124,7 +124,7 @@ io.on('connection', function (socket) {
   //user start a new game
   socket.on('deal', function (uuid) {
     if (players[dealer].uuid == uuid) {
-      console.log(`${uuidToName(uuid)} dealt`);
+      message(`${uuidToName(uuid)} - dealt`);
       clearHands();
       deal();
       updateState()
@@ -189,7 +189,6 @@ io.on('connection', function (socket) {
     let card = data.card;
 
     wildColour = data.wildColour;
-    //message(`${uuidToName(uuid)} played card - ${card}`);
     if (card == 'challenge' || card == 'deal') {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       //is this called?
@@ -278,7 +277,7 @@ io.on('connection', function (socket) {
 
   //user plays pick two
   socket.on('drawCard', function (uuid) {
-    message(`${uuidToName(uuid)} had to pick up - ${drawAmount} cards`);
+    message(`${uuidToName(uuid)} - had to pick up ${drawAmount} cards`);
     playerIndex = uuidToIndex(uuid);
     turn = playerIndex;
     for (let drawIndex = 0; drawIndex < drawAmount; drawIndex++) {
@@ -512,9 +511,9 @@ function playCard(card, uuid, wildColour = null) {
   }
 
   if ((players[turn].uuid != uuid)) {
-    message(`${uuidToName(uuid)} - played out of turn!`);
+    message(`${uuidToName(uuid)} - played a ${cardColour(card)} ${cardNumber(card)} out of turn!`);
     if (isSlapdown(card)) {
-      message(`${uuidToName(uuid)} - played a slapdown!`);
+      message(`${uuidToName(uuid)} - played a slapdown ${cardColour(card)} ${cardNumber(card)}!`);
       playerIndex = uuidToIndex(uuid);
       turn = playerIndex;
     } else if (dontWaitUp == uuid) {
@@ -545,13 +544,13 @@ function playCard(card, uuid, wildColour = null) {
 
   //player has card
   if (players[playerIndex].hand.indexOf(card) < 0) {
-    message(`${uuidToName(uuid)} - does not have a ${card}`);
+    message(`${uuidToName(uuid)} - does not have a ${cardColour(card)} ${cardNumber(card)}`);
     return false;
   }
 
 
   if (!isPlayable(card)) {
-    message(`${uuidToName(uuid)} - ${card} cannot be played on ${discard.slice(-1).pop()}`);
+    message(`${uuidToName(uuid)} - a ${cardColour(card)} ${cardNumber(card)} cannot be played on a ${cardColour(discard.slice(-1).pop())} ${cardNumber(discard.slice(-1).pop())}`);
     return false;
   }
 
@@ -563,7 +562,7 @@ function playCard(card, uuid, wildColour = null) {
   //wild choose colour
   if (card.includes('wild')) {
     challengeEnabled = true;
-    message(`${uuidToName(uuid)} - Wild colour choice was ${wildColour}`);
+    message(`${uuidToName(uuid)} - wild colour choice was ${wildColour}`);
     prevCurrentColour = currentColour;
     currentColour = wildColour;
   } else {
@@ -601,6 +600,8 @@ function playCard(card, uuid, wildColour = null) {
     currentColour = cardColour(card);
   }
 
+  //log put down
+  message(`${uuidToName(uuid)} - played a ${cardColour(card)} ${cardNumber(card)} `);
   //add card to discard
   discard.push(card);
   //remove from hand
@@ -745,11 +746,30 @@ function uuidToIndex(uuid) {
   return index;
 }
 
-function cardColour(card) {
+function cardColour(card, capitalise = false) {
   if (card.includes('red')) return 'red';
   if (card.includes('blue')) return 'blue';
   if (card.includes('yellow')) return 'yellow';
   if (card.includes('green')) return 'green';
+  return '';
+}
+
+function cardNumber(card) {
+  if (card.includes('0')) return 'zero';
+  if (card.includes('1')) return 'one';
+  if (card.includes('2')) return 'two';
+  if (card.includes('3')) return 'three';
+  if (card.includes('4')) return 'four';
+  if (card.includes('5')) return 'five';
+  if (card.includes('6')) return 'six';
+  if (card.includes('7')) return 'seven';
+  if (card.includes('8')) return 'eight';
+  if (card.includes('9')) return 'nine';
+  if (card.includes('picker')) return 'draw two';
+  if (card.includes('reverse')) return 'reverse';
+  if (card.includes('skip')) return 'skip';
+  if (card.includes('colora')) return 'wild';
+  if (card.includes('pick_four')) return 'wild draw four';
 }
 
 //count the number of clicks and restrict if too many
@@ -769,7 +789,6 @@ function clickPolice(uuid, timeout_ms = 5000, limit = 5) {
 
   //filter to just samples within timeout
   clickCounter[uuid] = clickCounter[uuid].filter(el => { return el > (time - timeout_ms) });
-  console.log(`Click log = ${clickCounter[uuid]}`);
 
   //check if samples exceeds limit
   if (clickCounter[uuid].length > limit) return true;
