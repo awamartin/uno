@@ -90,7 +90,7 @@ io.on('connection', function (socket) {
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       let newplayerindex = uuidToIndex(uuid);
-      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: players[newplayerindex].name, uno: false });
+      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null });
       if (inProgress) {
         message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
         players[newplayerindex].hand.push(pile.pop());
@@ -138,25 +138,43 @@ io.on('connection', function (socket) {
   socket.on('uno', function (uuid) {
     let playerIndex = null;
     playerIndex = uuidToIndex(uuid);
-    message(`uno ${playerIndex}`);
     if (players[playerIndex].hand.length == 1) {
+      message(`${uuidToName(uuid)} - Said Uno!`);
       playerdata[playerIndex].uno = true;
       updateState();
     }
   });
   socket.on('catch', function (playerIndex) {
-    message(`someone tried to catch player ${playerIndex}`);
-    if ((players[playerIndex].hand.length == 1) && (!playerdata[playerIndex].uno)) {
-      playerdata[playerIndex].uno = false;
-      message(`${playerIndex} was caught, no penalty today`);
-      for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
-        //	temporarily commented out until timer implemented
-        //  players[playerIndex].hand.push(pile.pop());
-        //	checkPile();
-      }
-      playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
-      updateState();
-    }
+    message(`Someone tried to catch ${playerdata[playerIndex].name}`);
+	if(playerdata[playerIndex].unotime == null)
+	{
+      message(`${playerdata[playerIndex].name} was not in Uno`);
+		
+	} else {
+		   if (playerdata[playerIndex].uno) {
+				message(`${playerdata[playerIndex].name} had already said Uno!`);	
+		   } else {
+			   var catchtime = new Date().getTime();
+		       var timesince = (catchtime - playerdata[playerIndex].unotime)/1000;
+			   if (timesince < 5.0) {
+					message(`${playerdata[playerIndex].name} went into Uno ${timesince} seconds ago, they have 5 seconds to say Uno!`);	
+					
+				} else {
+					message(`${playerdata[playerIndex].name} has not said Uno, and it's been ${timesince} seconds since they went into Uno - CAUGHT! `);	
+					playerdata[playerIndex].uno = false;
+					playerdata[playerIndex].unotime = null;
+					for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
+					  players[playerIndex].hand.push(pile.pop());
+					  checkPile();
+					}
+					playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
+				}
+
+		   }
+		
+	}
+	
+	updateState();
 
   });
 
@@ -189,6 +207,7 @@ io.on('connection', function (socket) {
 		  dontWaitUpCard = pickupCard;
 		  challengeEnabled = false; // Turn off challenge of wild if someone picks up.
 		  playerdata[turn].uno = false;
+		  playerdata[turn].unotime = null;
 		  checkPile();
 		  nextTurn(false);
 		}
@@ -211,6 +230,7 @@ io.on('connection', function (socket) {
       dontWaitUpCard = pickupCard;
       challengeEnabled = false; // Turn off challenge of wild if someone picks up.
       playerdata[turn].uno = false;
+	  playerdata[turn].unotime = null;
       checkPile();
 	  nextTurn(false);
     }
@@ -266,6 +286,7 @@ io.on('connection', function (socket) {
         players[previousPlayerIndex].hand.push(pile.pop());
         checkPile();
         playerdata[previousPlayerIndex].uno = false;
+		playerdata[previousPlayerIndex].unotime = null;
       }
 
       //this player now chooses the colour
@@ -283,6 +304,7 @@ io.on('connection', function (socket) {
         players[turn].hand.push(pile.pop());
         checkPile();
         playerdata[turn].uno = false;
+        playerdata[turn].unotime = null;
       }
       else if (discard.slice(-1).pop().includes('wild_pick')) {
         players[turn].hand.push(pile.pop());
@@ -294,6 +316,7 @@ io.on('connection', function (socket) {
         players[turn].hand.push(pile.pop());
         checkPile();
         playerdata[turn].uno = false;
+        playerdata[turn].unotime = null;
       }
 
     }
@@ -478,8 +501,8 @@ function updateState() {
     playerdata[playerindex].cardsInHand = players[playerindex].hand.length;
     //is turn
     playerdata[playerindex].isTurn = (playerindex == turn) && inProgress;
-    //is turn
-    playerdata[playerindex].isUno = players[playerindex].hand.length == 1 && inProgress; //TODO replace this with the acutal uno state
+    //is uno
+    playerdata[playerindex].isUno = playerdata[playerindex].uno;
     //won
     playerdata[playerindex].isWinner = players[playerindex].hand.length == 0 && !inProgress && playerdata[playerindex].wins > 0;
     //cansort
@@ -668,6 +691,11 @@ function playCard(card, uuid, wildColour = null) {
     //dont draw 2 on next player
 
   }
+  //Check if now in Uno
+  if (players[playerIndex].hand.length == 1) {
+	 playerdata[playerIndex].unotime = new Date().getTime(); 
+  }
+  
   nextTurn(skip);
 
   updateState();
