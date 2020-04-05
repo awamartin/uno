@@ -179,7 +179,7 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} played out of turn`);
     }
     checkPile();
-    nextTurn(false);
+	nextTurn(false);
     updateState();
   });
 
@@ -268,6 +268,11 @@ io.on('connection', function (socket) {
     dontWaitUpCard = '';
     playerdata[turn].cardsInHand = players[turn].hand.length;
     playerdata[previousPlayerIndex].cardsInHand = players[previousPlayerIndex].hand.length;
+	if((!invalid) && (discard.slice(-1).pop().includes('wild_pick')))
+	{
+		//The challenge failed, this person needs to pick up more but they don't get a turn if it's a Draw 4.
+		nextTurn(false);
+	}
     updateState();
   });
 
@@ -411,7 +416,6 @@ function deal() {
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
-
 
   nextTurn(skip);
 
@@ -710,6 +714,7 @@ function updateScore() {
 }
 //apply the next turn
 function nextTurn(skip = false) {
+	
   turn = nextPlayer(turn, reverseDirection);
   if (skip) turn = nextPlayer(turn, reverseDirection);
   io.sockets.emit('turn', turn);
@@ -750,6 +755,11 @@ function cardColour(card) {
 //count the number of clicks and restrict if too many
 var clickCounter = [];
 function clickPolice(uuid, timeout_ms = 5000, limit = 5) {
+
+  if (!inProgress) {
+	  return false;
+  }
+	
   var time = new Date().getTime();
 
   //initialise array if it is not initialised
