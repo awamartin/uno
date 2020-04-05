@@ -126,6 +126,7 @@
       let dealerNext = data.dealerNext;
       playerCount = data.playerCount;
       let inProgress = data.inProgress;
+      let resetEnabled = data.resetEnabled;
       let challengeEnabled = data.challengeEnabled;
       let drawEnabled = data.drawEnabled;
       let currentColour = data.currentColour;
@@ -142,7 +143,7 @@
       $("#pileCount").text(pileCount);
       $("#playerCount").text(playerCount);
 
-      console.log(playerdata);
+      console.log(data);
 
       //update discard pile
       $("#discardTop").empty();
@@ -178,7 +179,7 @@
         $("#challenge").hide();
       }
       //only allow reset if debug
-      if (("debug" == $("#playerName").val()) || debugEnabled == 'true') {
+      if (("debug" == $("#playerName").val()) || debugEnabled == 'true' || (resetEnabled)) {
         $("#resetbut").show();
       } else {
         $("#resetbut").hide();
@@ -269,7 +270,7 @@
         $("#currentcolour").hide();
         $("#yourturn").hide();
         $("#yourpickup").hide();
-        if (dealerNext == $("#playerName").val()) {
+        if ((dealerNext == $("#playerName").val()) && (!resetEnabled)) {
           $("#yourdeal").show();
           $("#deal_but").show();
         } else {

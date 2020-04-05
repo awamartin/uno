@@ -61,6 +61,11 @@ var slapdownCounter = 0;
 var wildColour = ' ';
 var currentColour = ' ';
 var prevCurrentColour = ' ';
+var lowestValue = 1000;
+var highestValue = 0;
+var winner = '';
+var loser = '';
+var resetEnabled;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -385,25 +390,12 @@ io.on('connection', function (socket) {
 
   //reset the game
   socket.on('reset', function (uuid) {
+	  
     message(`${uuidToName(uuid)} reset the game`);
     io.sockets.emit('refresh');
     //init all of the gobals to their default state
-    players = [];
-    playerdata = [];
-    discard = [];
-    pile = [];
-    turn = 0;
-    dontWaitUp = null;
-    dontWaitUpCard = '';
-    reverseDirection = false;
-    dealer = 0;
-    inProgress = false;
-    challengeEnabled = false;
-    drawEnabled = false;
-    slapdownCounter = 0;
-    drawAmount = 0;
-    wildColour = ' ';
-    currentColour = ' ';
+	reset();
+    return '';
   });
 });
 
@@ -530,7 +522,8 @@ function updateState() {
     wildColour,
     reverseDirection,
     currentColour,
-    playerdata
+    playerdata,
+	resetEnabled
   });
 }
 
@@ -671,7 +664,7 @@ function playCard(card, uuid, wildColour = null) {
 
   //check for win
   if (players[playerIndex].hand.length == 0) {
-    message(`${uuidToName(uuid)} won the game`);
+    message(`${uuidToName(uuid)} won the round`);
     //if there are cards to draw, draw them for the next player
     if (drawEnabled) {
       let drawIndex = nextPlayer(turn, reverseDirection);
@@ -688,7 +681,31 @@ function playCard(card, uuid, wildColour = null) {
     inProgress = false;
     updateScore();
     playerdata[playerIndex].wins += 1;
-    //dont draw 2 on next player
+    lowestValue = 1000;
+	highestValue = 0;
+	winner = '';
+	loser = '';
+	//check game over
+	for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
+		if(playerdata[thisPlayer].score < lowestValue) {
+		  lowestValue = playerdata[thisPlayer].score;
+		  winner = playerdata[thisPlayer].name;		
+		}
+		if(playerdata[thisPlayer].score > highestValue) {
+		  highestValue = playerdata[thisPlayer].score;
+		  loser = playerdata[thisPlayer].name;		
+		}
+	}
+	if(highestValue > 50) {
+		
+		message(`${winner} won the game with a score of ${lowestValue}. ${loser} had the highest score of ${highestValue}.`);
+		inProgress = false;
+		resetEnabled = true;
+		updateState(); 
+		return true;
+	}
+	
+
 
   }
   //Check if now in Uno
@@ -819,6 +836,27 @@ function cardColour(card, capitalise = false) {
   if (card.includes('yellow')) return 'yellow';
   if (card.includes('green')) return 'green';
   return '';
+}
+
+function reset() {
+    players = [];
+    playerdata = [];
+    discard = [];
+    pile = [];
+    turn = 0;
+    dontWaitUp = null;
+    dontWaitUpCard = '';
+    reverseDirection = false;
+    dealer = 0;
+    inProgress = false;
+    challengeEnabled = false;
+    drawEnabled = false;
+    slapdownCounter = 0;
+    drawAmount = 0;
+    wildColour = ' ';
+    currentColour = ' ';
+	resetEnabled = false;
+	
 }
 
 function cardNumber(card) {
