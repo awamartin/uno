@@ -19,7 +19,18 @@ Currently running at http://40.127.69.20:8080/
 # To Do
 
 - uno button/uno challenge rules - CC
-- Put Catch and Uno back in
+- Put Catch and Uno back in - cc
+- reset direction to clockwise on deal
+- clicking colours is a bit dicky
+- show who the draw 4/2 was from
+- show colour as border of wild after it has been chosen
+- lock in wild after clicking as it takes too long to put down when choosing colors
+- show skip and who skipped you as a message
+
+# for consideration
+- flash discard instead of pile
+- clicking on deck to pickup can be confusing
+
 
 # Things from first trial game
 4. Kill player on timeout/disconnect
