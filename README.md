@@ -18,12 +18,13 @@ Currently running at http://40.127.69.20:8080/
 
 # To Do
 
-- reset direction to clockwise on deal
 - clicking colours is a bit dicky
 - show who the draw 4/2 was from
 - show colour as border of wild after it has been chosen
 - lock in wild after clicking as it takes too long to put down when choosing colors
 - show skip and who skipped you as a message
+- Had the isUno stay up after next deal one game.
+- Sometimes a player gets duplicate log messages
 
 # for consideration
 - flash discard instead of pile
@@ -34,5 +35,6 @@ Currently running at http://40.127.69.20:8080/
 4. Kill player on timeout/disconnect
 12. Add Game Counter. Perhaps total row at bottom of table?
 15. Click wild out of turn, dont show colours.
+ 
  
 
