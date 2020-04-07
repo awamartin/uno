@@ -464,6 +464,7 @@ function deal() {
   }
 
   //reverse
+  reverseDirection	= false;
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
   }
