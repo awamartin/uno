@@ -18,8 +18,6 @@ Currently running at http://40.127.69.20:8080/
 
 # To Do
 
-- uno button/uno challenge rules - CC
-- Put Catch and Uno back in - cc
 - reset direction to clockwise on deal
 - clicking colours is a bit dicky
 - show who the draw 4/2 was from
