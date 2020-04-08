@@ -66,6 +66,10 @@ var highestValue = 0;
 var winner = '';
 var loser = '';
 var resetEnabled;
+var skippedPlayer;
+var skip;
+var reverseCard;
+var slapdownCard;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -197,6 +201,10 @@ io.on('connection', function (socket) {
 		drawAmount = 0;
 		drawEnabled = false;
 		challengeEnabled = false;
+		reverseCard = false;
+		skip = false;
+		playerdata[turn].uno = false;
+		playerdata[turn].unotime = null;
 		dontWaitUp = null;
 		dontWaitUpCard = '';
 		nextTurn(false);
@@ -213,6 +221,8 @@ io.on('connection', function (socket) {
 		  challengeEnabled = false; // Turn off challenge of wild if someone picks up.
 		  playerdata[turn].uno = false;
 		  playerdata[turn].unotime = null;
+		  reverseCard = false;
+		  skip = false;
 		  checkPile();
 		  nextTurn(false);
 		}
@@ -458,17 +468,19 @@ function deal() {
   }
 
   //skip
-  let skip = false;
+  skip = false;
   if (topCard.includes('skip')) {
     skip = true;
-	let skippedPlayer = nextPlayer(turn, reverseDirection);
+	skippedPlayer = nextPlayer(turn, reverseDirection);
 	message(`${playerdata[skippedPlayer].name} got skipped (1st Card)`);
   }
 
   //reverse
+  reverseCard = false;
   reverseDirection	= false;
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
+	reverse = reverseCard;
   }
 
   nextTurn(skip);
@@ -509,10 +521,39 @@ function updateState() {
 	if (playerindex == turn) {
 		if(inProgress){
 			if(drawEnabled){
-				playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards!' ;
+				if(challengeEnabled) {
+					playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards, or challenge!' ;					
+				} else {
+					if(slapdownCard){
+						playerdata[playerindex].status = 'Slapdown! Pick up ' + drawAmount + ' cards!' ;	
+						
+					} else {
+						playerdata[playerindex].status = 'Pick up ' + drawAmount + ' cards!' ;					
+					}
+				}
 			}
+			else if(reverseCard) {
+				if(slapdownCard) {		
+					playerdata[playerindex].status = 'Slapdown! Reverse! Your Turn!';			
+				} else {					
+					playerdata[playerindex].status = 'Reverse! Your Turn!';	
+				}
+				
+			}			
 			else {
-				playerdata[playerindex].status = 'Your Turn!';				
+				if(slapdownCard) {
+					playerdata[playerindex].status = 'Slapdown! Your Turn!';
+				} else {
+					playerdata[playerindex].status = 'Your Turn!';
+					let discardTop = discard.slice(-1).pop() || ' ';
+					if(discardTop != ' ')
+					{
+						if(discardTop.includes('wild'))
+						{
+							playerdata[playerindex].status = 'Your Turn! Colour is ' + currentColour + '!';
+						}
+					}
+				}				
 			}
 			
 		} else {
@@ -521,7 +562,22 @@ function updateState() {
 	}
 	else {
 		//Not your turn
-		playerdata[playerindex].status = '';
+		if((skip) && (playerindex == skippedPlayer)){
+			playerdata[playerindex].status = 'You got skipped!';
+		} else if(reverseCard) {
+			if(slapdownCard) {
+				playerdata[playerindex].status = 'Slapdown! Reverse!';				
+			} else {
+				playerdata[playerindex].status = 'Reverse!';					
+			}	
+		}	
+		else {
+			if(slapdownCard) {
+				playerdata[playerindex].status = 'Slapdown!';				
+			} else {
+				playerdata[playerindex].status = '';
+			}
+		}
 		
 	}
 	
@@ -662,22 +718,26 @@ function playCard(card, uuid, wildColour = null) {
   }
 
   //skip
-  let skip = false;
+  skip = false;
   if (card.includes('skip')) {
     skip = true;
-	let skippedPlayer = nextPlayer(turn, reverseDirection);
+	skippedPlayer = nextPlayer(turn, reverseDirection);
 	message(`${uuidToName(uuid)} skipped  ${playerdata[skippedPlayer].name}`);
   }
   
   
 
   //reverse
+  reverseCard = false;
   if (card.includes('reverse')) {
     reverseDirection = !reverseDirection;
+    reverseCard = true;
   }
 
+  slapdownCard = false;
   if (isSlapdown(card)) {
     slapdownCounter++;
+	slapdownCard = true;
   }
 
   if (!card.includes('wild')) {
@@ -709,7 +769,9 @@ function playCard(card, uuid, wildColour = null) {
 
     inProgress = false;
     updateScore();
-    playerdata[playerIndex].wins += 1;
+    playerdata[playerIndex].wins += 1;	
+	playerdata[playerIndex].uno = false;
+	playerdata[playerIndex].unotime = null;
     lowestValue = 1000;
 	highestValue = 0;
 	winner = '';
@@ -827,10 +889,10 @@ function updateScore() {
   }
 }
 //apply the next turn
-function nextTurn(skip = false) {
+function nextTurn(Skip = false) {
 	
   turn = nextPlayer(turn, reverseDirection);
-  if (skip) turn = nextPlayer(turn, reverseDirection);
+  if (Skip) turn = nextPlayer(turn, reverseDirection);
   io.sockets.emit('turn', turn);
 }
 
