@@ -24,7 +24,7 @@ Currently running at http://40.127.69.20:8080/
 - lock in wild after clicking as it takes too long to put down when choosing colors
 - show skip and who skipped you as a message
 - Had the isUno stay up after next deal one game.
-- Sometimes a player gets duplicate log messages
+- Sometimes a player gets duplicate log messages, seem to be able to force this to happen for all players by restarting the game with players connected.
 
 # for consideration
 - flash discard instead of pile

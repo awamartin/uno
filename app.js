@@ -461,6 +461,8 @@ function deal() {
   let skip = false;
   if (topCard.includes('skip')) {
     skip = true;
+	let skippedPlayer = nextPlayer(turn, reverseDirection);
+	message(`${playerdata[skippedPlayer].name} got skipped (1st Card)`);
   }
 
   //reverse
@@ -641,7 +643,11 @@ function playCard(card, uuid, wildColour = null) {
   let skip = false;
   if (card.includes('skip')) {
     skip = true;
+	let skippedPlayer = nextPlayer(turn, reverseDirection);
+	message(`${uuidToName(uuid)} skipped  ${playerdata[skippedPlayer].name}`);
   }
+  
+  
 
   //reverse
   if (card.includes('reverse')) {
