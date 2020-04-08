@@ -95,7 +95,7 @@ io.on('connection', function (socket) {
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       let newplayerindex = uuidToIndex(uuid);
-      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null });
+      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null, status: ''});
       if (inProgress) {
         message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
         players[newplayerindex].hand.push(pile.pop());
@@ -498,11 +498,33 @@ function updateState() {
     playerdata[playerindex].isTurn = (playerindex == turn) && inProgress;
     //is uno
     playerdata[playerindex].isUno = playerdata[playerindex].uno;
+    //is skipped
+
+    playerdata[playerindex].isSkipped = playerdata[playerindex].skipped;
     //won
     playerdata[playerindex].isWinner = players[playerindex].hand.length == 0 && !inProgress && playerdata[playerindex].wins > 0;
     //cansort
     players[playerindex].isSortable = !(JSON.stringify(players[playerindex].hand) == JSON.stringify([...players[playerindex].hand].sort()));
     
+	if (playerindex == turn) {
+		if(inProgress){
+			if(drawEnabled){
+				playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards!' ;
+			}
+			else {
+				playerdata[playerindex].status = 'Your Turn!';				
+			}
+			
+		} else {
+		playerdata[playerindex].status = 'Your Deal!';		
+		}
+	}
+	else {
+		//Not your turn
+		playerdata[playerindex].status = '';
+		
+	}
+	
   });
 
   updateAllPlayers();

@@ -24,6 +24,11 @@ div.c {
   padding-bottom:20px;
 }
 
+.statustext{
+  font-size: 36px;
+  font-weight: 600;	
+}
+
 .decorative-red{
   height: 10px;
   width: 25%;

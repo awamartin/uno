@@ -286,7 +286,16 @@
         playedWild = 'deal';
         $("#colours").show();
       }
-
+  
+	  for (let i = 0; i < playerCount; i++) {
+	  if ($("#playerName").val() == playerdata[i].name) {
+           let thisstatus = playerdata[i].status;
+			console.log(thisstatus);
+			$("#statusdata").text(thisstatus);
+        }
+	}
+	  
+	  
       //clear playertable
       $('#playertable').empty();
       //add title row
@@ -456,6 +465,9 @@
       </div>
     </div>
     <div class='textarea sectiontitle'>The Pile</div>
+	
+    <div class='gamestats'>
+      <div class='gscol1'>
     <div style='display:flex'>
       <div style='width: 150px'>
         <div id="discard" class="discard">
@@ -467,6 +479,13 @@
       </div>
           
     </div>
+	</div>
+      <div class='gscol1'>
+	  <div>
+	  <label class="statustext" id="statusdata"></label></div>
+	  
+	  </div>
+	  </div>
     <div hidden="true" id="colours">
       <button class="btn blue_but" id="blue_but">Blue</button>
       <button class="btn green_but" id="green_but">Green</button>
