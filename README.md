@@ -22,8 +22,7 @@ Currently running at http://40.127.69.20:8080/
 - show who the draw 4/2 was from
 - show colour as border of wild after it has been chosen
 - lock in wild after clicking as it takes too long to put down when choosing colors
-- show skip and who skipped you as a message
-- Had the isUno stay up after next deal one game.
+- Had the isUno stay up after next deal one game. - Possibly Fixed.
 - Sometimes a player gets duplicate log messages, seem to be able to force this to happen for all players by restarting the game with players connected.
 
 # for consideration
