@@ -436,6 +436,9 @@ app.use(function (err, req, res, next) {
 
 //deal the cards
 function deal() {
+
+  //reset direction
+  reverseDirection = false;
   //clear the discard pile
   discard = [];
   //get the deck from the pile
