@@ -116,7 +116,8 @@ div.c {
 
 .yourturnbut{
   position: absolute;
-  left: 200px;
+  left: 30px;
+  width: 100px;
   height:140px;
   color: #dddddd;
   margin: 0;
