@@ -26,7 +26,7 @@ server.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
-
+io.sockets.emit('refresh');
 
 app.use('/', router);
 router.get('/', function (req, res, next) {

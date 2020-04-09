@@ -72,20 +72,6 @@
       socket.emit('reset', uuid);
     });
 
-    /* 	for (let i = 0; i < 5; i++) {
-         //$("#uno"+${i}+"_but").click(function () {
-         //socket.emit("uno"+${i}+"_but");
-       let thisString = "#uno"+i+"_but";
-       let thisSecondString = "uno"+i;
-       console.log(thisSecondString);
-    
-        $(thisString).click(function () {
-         socket.emit(thisSecondString, uuid);
-       });			
-     	
-         };
-     */
-
     $("#uno1_but").click(function () {
       socket.emit('uno7', uuid);
     });
