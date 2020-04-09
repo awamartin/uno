@@ -148,7 +148,7 @@ io.on('connection', function (socket) {
     let playerIndex = null;
     playerIndex = uuidToIndex(uuid);
     if (players[playerIndex].hand.length == 1) {
-      message(`${uuidToName(uuid)} - Said Uno!`);
+      message(`${uuidToName(uuid)} - said Uno!`);
       playerdata[playerIndex].uno = true;
       updateState();
     }
@@ -157,7 +157,7 @@ io.on('connection', function (socket) {
     console.log(data);
     let playerIndex = data.i;
     let uuid = data.uuid;
-    message(`${uuidToName(uuid)} tried to catch ${playerdata[playerIndex].name}`);
+    message(`${uuidToName(uuid)} - tried to catch ${playerdata[playerIndex].name}`);
     if (playerdata[playerIndex].unotime == null) {
       message(`${playerdata[playerIndex].name} was not in Uno`);
       for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
