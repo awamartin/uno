@@ -303,7 +303,7 @@
             class: "btn",
             id: "catch" + i + "_but",
             click: function () {
-              socket.emit('catch', i);
+              socket.emit('catch', {i, uuid});
 
             }
           });
