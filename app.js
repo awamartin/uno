@@ -576,6 +576,12 @@ function updateState() {
 				} else {
 				playerdata[playerindex].status = 'Reverse!';
 				}
+			} else if (drawEnabled) {
+				if(challengeEnabled){
+					playerdata[playerindex].status = playerdata[turn].name + ' has to pick up ' + drawAmount + ' cards, or challenge!';
+				} else {
+					playerdata[playerindex].status = playerdata[turn].name + ' has to pick up ' + drawAmount + ' cards!';					
+				}				
 			}
 			else {
 				if (slapdownCard) {
