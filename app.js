@@ -437,8 +437,6 @@ app.use(function (err, req, res, next) {
 //deal the cards
 function deal() {
 
-  //reset direction
-  reverseDirection = false;
   //clear the discard pile
   discard = [];
   //get the deck from the pile
@@ -485,10 +483,11 @@ function deal() {
 
   //reverse
   reverseCard = false;
+  //reset direction
   reverseDirection = false;
   if (topCard.includes('reverse')) {
     reverseDirection = !reverseDirection;
-    reverse = reverseCard;
+    reverseCard = true;
   }
 
   nextTurn(skip);
