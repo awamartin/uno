@@ -656,12 +656,10 @@ function playCard(card, uuid, wildColour = null) {
     if (isSlapdown(card)) {
       message(`${uuidToName(uuid)} - played a slapdown ${cardColour(card)} ${cardNumber(card)}!`);
       playerIndex = uuidToIndex(uuid);
-      turn = playerIndex;
     } else if (dontWaitUp == uuid) {
       if ((card == dontWaitUpCard) && (isPlayable(dontWaitUpCard))) {
         message(`${uuidToName(uuid)} reminded ${playerdata[turn].name} not to wait up!`);
         playerIndex = uuidToIndex(uuid);
-        turn = playerIndex;
       } else {
         if (card != dontWaitUpCard) {
           message(`${uuidToName(uuid)} - picked up a card and tried to play a different card`);
@@ -689,13 +687,13 @@ function playCard(card, uuid, wildColour = null) {
     return false;
   }
 
-
   if (!isPlayable(card)) {
     message(`${uuidToName(uuid)} - a ${cardColour(card)} ${cardNumber(card)} cannot be played on a ${cardColour(discard.slice(-1).pop())} ${cardNumber(discard.slice(-1).pop())}`);
     return false;
   }
 
 
+  turn = playerIndex;
   dontWaitUp = null;
   dontWaitUpCard = '';
 
