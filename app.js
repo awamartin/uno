@@ -334,9 +334,9 @@ io.on('connection', function (socket) {
       }
 	  if (card.includes('wild')) {
         message(`${uuidToName(uuid)} - played a wild and is choosing a colour`);
-		socket.emit('newchooseColour');
+		
 		playedCard = card;
-		playCard(card, uuid, null);	
+		playCard(card, uuid, null, socket);	
 		  
 	  } else if (card.includes('colourchoice')) {
         message(`${uuidToName(uuid)} - chose a colour`);
@@ -358,7 +358,7 @@ io.on('connection', function (socket) {
 		updateState();
 		  
 	  } else {
-		playCard(card, uuid, wildColour);		  
+		playCard(card, uuid, wildColour, null);		  
 	  }
     }
 
@@ -758,7 +758,7 @@ function nextPlayer(playerIndex, reverse = false) {
 }
 
 //apply play card and rules
-function playCard(card, uuid, wildColour = null) {
+function playCard(card, uuid, wildColour = null, socket) {
   //apply rules
   //player's turn
   let playerIndex = null;
@@ -819,12 +819,6 @@ function playCard(card, uuid, wildColour = null) {
   killmessage = '';
 	  
   //Modifiers
-  //wild choose colour
-  if (card.includes('wild')) {
-	  //Do nothing
-  } else {
-    challengeEnabled = false;
-  }
 
   //draw two
   if (card.includes('picker')) {
@@ -859,9 +853,22 @@ function playCard(card, uuid, wildColour = null) {
   discard.push(card);
   //remove from hand
   players[playerIndex].hand = players[playerIndex].hand.filter((item) => { return item !== card });
+  
+    //wild choose colour
+  if ((card.includes('wild')) && (players[playerIndex].hand.length != 0)) {
+	  socket.emit('newchooseColour');
+  } else {
+    challengeEnabled = false;
+  }  
 
   //check for win
   if (players[playerIndex].hand.length == 0) {
+	  
+	if (card.includes('wild_pick')) {
+		drawAmount = 4;
+		drawEnabled = true;
+	}
+	  
     message(`${uuidToName(uuid)} won the round`);
     //if there are cards to draw, draw them for the next player
     if (drawEnabled) {
