@@ -75,6 +75,7 @@ var slapdownCard;
 var turnCounter;
 var playedCard = '';
 var killmessage = '';
+var endmessage = '';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -260,6 +261,7 @@ io.on('connection', function (socket) {
       dontWaitUp = null;
       dontWaitUpCard = '';
 	  killmessage = '';
+	  endmessage = '';
       nextTurn(false);
       playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
       updateState();
@@ -277,6 +279,7 @@ io.on('connection', function (socket) {
         reverseCard = false;
 	    slapdownCard = false;
 		killmessage = '';
+		endmessage = '';
         skip = false;
         turnCounter++;
         checkPile();
@@ -561,6 +564,7 @@ function deal() {
 
   //reverse
   reverseCard = false;
+  endmessage = '';
   //reset direction
   reverseDirection = false;
   if (topCard.includes('reverse')) {
@@ -604,7 +608,11 @@ function updateState() {
     //cansort
     players[playerindex].isSortable = !(JSON.stringify(players[playerindex].hand) == JSON.stringify([...players[playerindex].hand].sort()));
 
-	if (inProgress) {
+	
+	if (endmessage != ''){
+		playerdata[playerindex].status = endmessage;				
+	} 
+	else if (inProgress) {
 		if (playerindex == turn) {
 			if (killmessage != ''){
 				  playerdata[playerindex].status = killmessage + '. Your turn!';				
@@ -891,6 +899,7 @@ function playCard(card, uuid, wildColour = null) {
     if (highestValue > 500) {
 
       message(`${winner} won the game with a score of ${lowestValue}. ${loser} had the highest score of ${highestValue}.`);
+	  endmessage = winner + ' won the game with a score of ' + lowestValue + '. ' + loser + ' had the highest score of ' + highestValue + '.';
       inProgress = false;
       resetEnabled = true;
       updateState();
@@ -1055,7 +1064,8 @@ function reset() {
   wildColour = ' ';
   currentColour = ' ';
   resetEnabled = false;
-
+  endmessage = '';
+  killmessage = '';
 }
 
 function cardNumber(card) {
