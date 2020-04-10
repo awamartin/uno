@@ -518,6 +518,55 @@ app.use(function (err, req, res, next) {
 //deal the cards
 function deal() {
 
+  message(` `);
+  message(`Good Luck! Have Fun!`);
+  message(` `);
+  message(`The player with the lowest score at this time is the winner!`);
+  message(`When a player reaches 500, the game is over.`);
+  message(`Wild and Draw 4 are worth 50 points`);
+  message(`Skip, Reverse and Draw 2 are worth 20 points`);
+  message(`Cards 0-9 are worth face value`);
+  message(`The Score for each round and your cumulative score are shown`);
+  message(` `);
+  message(`A player can win the round without saying Uno!`);
+  message(`A player who has zero cards left in their hand wins the round`);
+  message(`If someone catches you after the next turn has been taken, you will receive + 2 cards`);
+  message(`After the next turn has been taken, you can be caught`);
+  message(`Failure to say Uno before the next turn is taken will leave you vulnerable`);
+  message(`When you have one card left you must say Uno!`);
+  message(`-----------`);
+  message(`End Game`);
+  message(` `);
+  message(`but be quick, the next player doesn't have to wait for you!`);
+  message(`If you pick up and you can play your new card, that card may be played,`);
+  message(`If the player before you picks up, you don't need to wait to see if they can play.`);
+  message(`----------------`);
+  message(`Don't Wait Up!`);
+  message(` `);
+  message(`You cannot slapdown a Wild/Draw 4`);
+  message(`Play continues on from the player that played the slapdown`);
+  message(`If you have the exact same card as the top card on the discard pile, play it at any time`);
+  message(`------------`);
+  message(`Slapdowns`);
+  message(` `);
+  message(`Draw 4's do not stack`);
+  message(`You cannot play a Wild/Draw 4 on a Draw 2`);
+  message(`Draw 2's Stack and cannot be Skipped/Reversed`);
+  message(`A failed challenge will result in the challenger picking up two additional cards`);
+  message(`and the challenger choosing the colour.`);
+  message(`A successful challenge will result in the original player picking up cards,`);
+  message(`challenge your Wild/Draw 4`);
+  message(`If the next player suspects that you had the previous colour they can`);
+  message(`that you can't! `);
+  message(`it is against the rules to play a Wild/Draw 4, but that doesn't mean`);
+  message(`If you have the same colour card as the card on the dischard pile,`);
+  message(`Play a Wild/Draw 4`);
+  message(`Play the same number/symbol card as the card on the discard pile, or`);
+  message(`Play the same colour card as the card on the discard pile, or`);
+  message(`------`);
+  message(`Rules`);
+  message(` `);
+
   //clear the discard pile
   discard = [];
   //get the deck from the pile
