@@ -101,7 +101,7 @@ io.on('connection', function (socket) {
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       let newplayerindex = uuidToIndex(uuid);
-      playerdata.push({ cardsInHand: 0, score: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null, status: '' });
+      playerdata.push({ cardsInHand: 0, score: 0, lastRound: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null, status: '' });
       if (inProgress) {
         message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
         players[newplayerindex].hand.push(pile.pop());
@@ -942,6 +942,7 @@ function updateScore() {
       if (card.includes('pick_four')) scoreInHand += 50;
     });
     playerdata[thisPlayer].score = playerdata[thisPlayer].score + scoreInHand;
+    playerdata[thisPlayer].lastRound = scoreInHand;
   }
 }
 //apply the next turn

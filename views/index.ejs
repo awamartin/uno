@@ -285,10 +285,10 @@
       //clear playertable
       $('#playertable').empty();
       //add title row
-      $('#playertable').append(`<tr><th >Player name</th><th class='c_center'>Cards in hand</th><th  class='c_center'>Wins</th><th  class='c_center'>Score</th></tr>`);
+      $('#playertable').append(`<tr><th >Player name</th><th class='c_center'>Cards in hand</th><th  class='c_center'>Wins</th><th  class='c_center'>Last Round</th><th  class='c_center'>Score</th></tr>`);
       //dyanmically add the other players
       for (let i = 0; i < playerCount; i++) {
-        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th id="cardscell${i}" class='c_center'>${playerdata[i].cardsInHand}</th><th id="winscell${i}" class='c_center'>${playerdata[i].wins}</th><th class='c_center'>${playerdata[i].score}</th></tr>`);
+        $('#playertable').append(`<tr id="playerrow${i}"><th>${playerdata[i].name}</th><th id="cardscell${i}" class='c_center'>${playerdata[i].cardsInHand}</th><th id="winscell${i}" class='c_center'>${playerdata[i].wins}</th><th class='c_center'>${playerdata[i].lastRound}</th><th class='c_center'>${playerdata[i].score}</th></tr>`);
       }
       //clear playertable
       $('#unotable').empty();
