@@ -587,7 +587,13 @@ function updateState() {
 				if (slapdownCard) {
 				  playerdata[playerindex].status = 'Slapdown!';
 				} else {
-				  playerdata[playerindex].status = '';
+					playerdata[playerindex].status = '';
+					let discardTop = discard.slice(-1).pop() || ' ';
+					if (discardTop != ' ') {
+					  if (discardTop.includes('wild')) {
+						playerdata[playerindex].status = 'Colour is ' + currentColour + '!';
+					  }
+					}
 				}
 			}
 		}
