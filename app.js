@@ -208,6 +208,7 @@ io.on('connection', function (socket) {
       drawEnabled = false;
       challengeEnabled = false;
       reverseCard = false;
+	  slapdownCard = false;
       skip = false;
       playerdata[turn].uno = false;
       playerdata[turn].unotime = null;
@@ -228,6 +229,7 @@ io.on('connection', function (socket) {
         playerdata[turn].uno = false;
         playerdata[turn].unotime = null;
         reverseCard = false;
+	  slapdownCard = false;
         skip = false;
         checkPile();
         nextTurn(false);
@@ -525,66 +527,71 @@ function updateState() {
     //cansort
     players[playerindex].isSortable = !(JSON.stringify(players[playerindex].hand) == JSON.stringify([...players[playerindex].hand].sort()));
 
-    if (playerindex == turn) {
-      if (inProgress) {
-        if (drawEnabled) {
-          if (challengeEnabled) {
-            playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards, or challenge!';
-          } else {
-            if (slapdownCard) {
-              playerdata[playerindex].status = 'Slapdown! Pick up ' + drawAmount + ' cards!';
+	if (inProgress) {
+		if (playerindex == turn) {
+			if (drawEnabled) {
+			  if (challengeEnabled) {
+				playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards, or challenge!';
+			  } else {
+				if (slapdownCard) {
+				  playerdata[playerindex].status = 'Slapdown! Pick up ' + drawAmount + ' cards!';
 
-            } else {
-              playerdata[playerindex].status = 'Pick up ' + drawAmount + ' cards!';
-            }
-          }
-        }
-        else if (reverseCard) {
-          if (slapdownCard) {
-            playerdata[playerindex].status = 'Slapdown! Reverse! Your Turn!';
-          } else {
-            playerdata[playerindex].status = 'Reverse! Your Turn!';
-          }
+				} else {
+				  playerdata[playerindex].status = 'Pick up ' + drawAmount + ' cards!';
+				}
+			  }
+			}
+			else if (reverseCard) {
+			  if (slapdownCard) {
+				playerdata[playerindex].status = 'Slapdown! Reverse! Your Turn!';
+			  } else {
+				playerdata[playerindex].status = 'Reverse! Your Turn!';
+			  }
 
-        }
-        else {
-          if (slapdownCard) {
-            playerdata[playerindex].status = 'Slapdown! Your Turn!';
-          } else {
-            playerdata[playerindex].status = 'Your Turn!';
-            let discardTop = discard.slice(-1).pop() || ' ';
-            if (discardTop != ' ') {
-              if (discardTop.includes('wild')) {
-                playerdata[playerindex].status = 'Your Turn! Colour is ' + currentColour + '!';
-              }
-            }
-          }
-        }
-
-      } else {
-        playerdata[playerindex].status = 'Your Deal!';
-      }
-    }
+			}
+			else {
+			  if (slapdownCard) {
+				playerdata[playerindex].status = 'Slapdown! Your Turn!';
+			  } else {
+				playerdata[playerindex].status = 'Your Turn!';
+				let discardTop = discard.slice(-1).pop() || ' ';
+				if (discardTop != ' ') {
+				  if (discardTop.includes('wild')) {
+					playerdata[playerindex].status = 'Your Turn! Colour is ' + currentColour + '!';
+				  }
+				}
+			  }
+			}
+		} else {
+			//Not your turn
+			if ((skip) && (playerindex == skippedPlayer)) {
+				playerdata[playerindex].status = 'You got skipped!';
+			} else if (reverseCard) {
+				if (slapdownCard) {
+					playerdata[playerindex].status = 'Slapdown! Reverse!';
+				} else {
+				playerdata[playerindex].status = 'Reverse!';
+				}
+			}
+			else {
+				if (slapdownCard) {
+				  playerdata[playerindex].status = 'Slapdown!';
+				} else {
+				  playerdata[playerindex].status = '';
+				}
+			}
+		}
+    } 
     else {
-      //Not your turn
-      if ((skip) && (playerindex == skippedPlayer)) {
-        playerdata[playerindex].status = 'You got skipped!';
-      } else if (reverseCard) {
-        if (slapdownCard) {
-          playerdata[playerindex].status = 'Slapdown! Reverse!';
-        } else {
-          playerdata[playerindex].status = 'Reverse!';
-        }
-      }
-      else {
-        if (slapdownCard) {
-          playerdata[playerindex].status = 'Slapdown!';
-        } else {
-          playerdata[playerindex].status = '';
-        }
-      }
-
+		if (playerindex == dealer) {
+			playerdata[playerindex].status = 'Your Deal!';
+			
+		} else {
+			playerdata[playerindex].status = playerdata[dealer].name + '\'s Deal!';			
+		}
     }
+	
+	
 
   });
 
@@ -645,6 +652,7 @@ function playCard(card, uuid, wildColour = null) {
   //apply rules
   //player's turn
   let playerIndex = null;
+  slapdownCard = false;
 
   if (!inProgress) {
     message(`${uuidToName(uuid)} - tried to play after the game ended`);
@@ -655,6 +663,7 @@ function playCard(card, uuid, wildColour = null) {
     message(`${uuidToName(uuid)} - played a ${cardColour(card)} ${cardNumber(card)} out of turn!`);
     if (isSlapdown(card)) {
       message(`${uuidToName(uuid)} - played a slapdown ${cardColour(card)} ${cardNumber(card)}!`);
+	  slapdownCard = true;
       playerIndex = uuidToIndex(uuid);
     } else if (dontWaitUp == uuid) {
       if ((card == dontWaitUpCard) && (isPlayable(dontWaitUpCard))) {
@@ -735,12 +744,6 @@ function playCard(card, uuid, wildColour = null) {
   if (card.includes('reverse')) {
     reverseDirection = !reverseDirection;
     reverseCard = true;
-  }
-
-  slapdownCard = false;
-  if (isSlapdown(card)) {
-    slapdownCounter++;
-    slapdownCard = true;
   }
 
   if (!card.includes('wild')) {
