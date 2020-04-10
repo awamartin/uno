@@ -70,6 +70,7 @@ var skippedPlayer;
 var skip;
 var reverseCard;
 var slapdownCard;
+var turnCounter;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -169,13 +170,13 @@ io.on('connection', function (socket) {
       if (playerdata[playerIndex].uno) {
         message(`${playerdata[playerIndex].name} had already said Uno!`);
       } else {
-        var catchtime = new Date().getTime();
-        var timesince = (catchtime - playerdata[playerIndex].unotime) / 1000;
-        if (timesince < 5.0) {
-          message(`${playerdata[playerIndex].name} went into Uno ${timesince} seconds ago, they have 5 seconds to say Uno!`);
+        var catchtime = turnCounter;
+        var turnsSince = (catchtime - playerdata[playerIndex].unotime);
+        if (turnsSince < 1) {
+          message(`${playerdata[playerIndex].name} went into Uno ${turnsSince} turns ago, they have 1 turn to say Uno!`);
 
         } else {
-          message(`${playerdata[playerIndex].name} has not said Uno, and it's been ${timesince} seconds since they went into Uno - CAUGHT! `);
+          message(`${playerdata[playerIndex].name} has not said Uno, and it's been ${turnsSince} turns since they went into Uno - CAUGHT! `);
           playerdata[playerIndex].uno = false;
           playerdata[playerIndex].unotime = null;
           for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
@@ -210,6 +211,7 @@ io.on('connection', function (socket) {
       reverseCard = false;
 	  slapdownCard = false;
       skip = false;
+      turnCounter++;
       playerdata[turn].uno = false;
       playerdata[turn].unotime = null;
       dontWaitUp = null;
@@ -229,8 +231,9 @@ io.on('connection', function (socket) {
         playerdata[turn].uno = false;
         playerdata[turn].unotime = null;
         reverseCard = false;
-	  slapdownCard = false;
+	    slapdownCard = false;
         skip = false;
+        turnCounter++;
         checkPile();
         nextTurn(false);
       }
@@ -495,6 +498,7 @@ function deal() {
   nextTurn(skip);
 
   inProgress = true;
+  turnCounter = 0;
   turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
@@ -705,6 +709,7 @@ function playCard(card, uuid, wildColour = null) {
   turn = playerIndex;
   dontWaitUp = null;
   dontWaitUpCard = '';
+  turnCounter++;
 
   //Modifiers
   //wild choose colour
@@ -807,7 +812,7 @@ function playCard(card, uuid, wildColour = null) {
   }
   //Check if now in Uno
   if (players[playerIndex].hand.length == 1) {
-    playerdata[playerIndex].unotime = new Date().getTime();
+    playerdata[playerIndex].unotime = turnCounter;
   }
 
   nextTurn(skip);
@@ -950,6 +955,7 @@ function reset() {
   drawEnabled = false;
   slapdownCounter = 0;
   drawAmount = 0;
+  turnCounter = 0;
   wildColour = ' ';
   currentColour = ' ';
   resetEnabled = false;
