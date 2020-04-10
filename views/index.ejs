@@ -354,6 +354,11 @@
       playedWild = 'challenge';
       $("#colours").show();
     });
+	
+    socket.on('newchooseColour', () => {
+      playedWild = 'colourchoice';	
+      $("#colours").show();
+    });
 
     //player status is sent to a socket named as the player's uuid
     socket.on(uuid, player => {
@@ -379,8 +384,8 @@
             click: function () {
               console.log(`played ${jQuery(this).text()}`);
               if (jQuery(this).attr('src').includes('wild')) {
-                $("#colours").show();
                 playedWild = jQuery(this).attr('src');
+				socket.emit('playcard', { uuid: uuid, card: jQuery(this).attr('src') });
               } else {
                 socket.emit('playcard', { uuid: uuid, card: jQuery(this).attr('src') });
               }

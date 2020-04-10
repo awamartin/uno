@@ -71,6 +71,7 @@ var skip;
 var reverseCard;
 var slapdownCard;
 var turnCounter;
+var playedCard = '';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -270,9 +271,10 @@ io.on('connection', function (socket) {
   socket.on('playcard', function (data) {
     let uuid = data.uuid;
     let card = data.card;
-
-    wildColour = data.wildColour;
+		
+    
     if (card == 'challenge' || card == 'deal') {
+	  wildColour = data.wildColour;
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       //is this called?
       currentColour = wildColour;
@@ -283,7 +285,34 @@ io.on('connection', function (socket) {
         message(`${uuidToName(uuid)} - has been clicking too rapidly and has been temporarily throttled`);
         return;
       }
-      playCard(card, uuid, wildColour);
+	  if (card.includes('wild')) {
+        message(`${uuidToName(uuid)} - played a wild and is choosing a colour`);
+		socket.emit('newchooseColour');
+		playedCard = card;
+		playCard(card, uuid, null);	
+		  
+	  } else if (card.includes('colourchoice')) {
+        message(`${uuidToName(uuid)} - chose a colour`);
+		wildColour = data.wildColour;
+		
+		challengeEnabled = true;
+		message(`${uuidToName(uuid)} - wild colour choice was ${wildColour}`);
+		prevCurrentColour = currentColour;
+		currentColour = wildColour;
+		
+		  //draw four
+		  if (playedCard.includes('wild_pick')) {
+			drawAmount = 4;
+			drawEnabled = true;
+		  }
+				
+		playedCard = '';
+		nextTurn();
+		updateState();
+		  
+	  } else {
+		playCard(card, uuid, wildColour);		  
+	  }
     }
 
   });
@@ -561,7 +590,11 @@ function updateState() {
 				let discardTop = discard.slice(-1).pop() || ' ';
 				if (discardTop != ' ') {
 				  if (discardTop.includes('wild')) {
-					playerdata[playerindex].status = 'Your Turn! Colour is ' + currentColour + '!';
+					  if((currentColour == '') || (currentColour == ' ') || (playedCard != '')) {
+						playerdata[playerindex].status = 'Your Turn! Choose a colour!'; 
+					  } else {
+						playerdata[playerindex].status = 'Your Turn! Colour is ' + currentColour + '!';
+					  }
 				  }
 				}
 			  }
@@ -591,7 +624,11 @@ function updateState() {
 					let discardTop = discard.slice(-1).pop() || ' ';
 					if (discardTop != ' ') {
 					  if (discardTop.includes('wild')) {
-						playerdata[playerindex].status = 'Colour is ' + currentColour + '!';
+						if((currentColour == '') || (currentColour == ' ') || (playedCard != '')) {
+							playerdata[playerindex].status = playerdata[turn].name + ' is choosing a colour!';							
+						} else {
+							playerdata[playerindex].status = 'Colour is ' + currentColour + '!';
+						}
 					  }
 					}
 				}
@@ -726,10 +763,7 @@ function playCard(card, uuid, wildColour = null) {
   //Modifiers
   //wild choose colour
   if (card.includes('wild')) {
-    challengeEnabled = true;
-    message(`${uuidToName(uuid)} - wild colour choice was ${wildColour}`);
-    prevCurrentColour = currentColour;
-    currentColour = wildColour;
+	  //Do nothing
   } else {
     challengeEnabled = false;
   }
@@ -737,12 +771,6 @@ function playCard(card, uuid, wildColour = null) {
   //draw two
   if (card.includes('picker')) {
     drawAmount = drawAmount + 2;
-    drawEnabled = true;
-  }
-
-  //draw four
-  if (card.includes('wild_pick')) {
-    drawAmount = 4;
     drawEnabled = true;
   }
 
@@ -827,9 +855,14 @@ function playCard(card, uuid, wildColour = null) {
     playerdata[playerIndex].unotime = turnCounter;
   }
 
-  nextTurn(skip);
-
+  if (!card.includes('wild')) {
+    nextTurn(skip);
+  }
+  
   updateState();
+  
+
+  
   return true;
 }
 
