@@ -101,9 +101,11 @@ div.c {
 .gscol1{
   width: 50%;
 }
-
 .gscol2{
-  width: 50%;
+  width: 40%;
+}
+.gscol3{
+  width: 60%;
 }
 
 .sectiontitle {

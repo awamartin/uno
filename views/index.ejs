@@ -342,7 +342,7 @@
     //log message
     socket.on('message', text => {
       //add to log
-      $("#messages").prepend(`${text}<br />`)
+      $("#messages").prepend(`<br />${text}`)
     });
 
     //force refresh
@@ -420,6 +420,12 @@
       <input type="text" id="playerName">
     </div>
     <div class='gamestats'>
+      <div class='gscol3'>
+	
+	
+	
+    <div class='gamestats'>
+
       <div class='gscol1'>
         <div class="stattext">Number of Players</br>
           <label class="statlabel" id="playerCount"></label>
@@ -499,11 +505,16 @@
     <div>
       <table id="playertable"></table>
     </div>
-    <div class='textarea sectiontitle'>Log</div>
+	    </div>
+      
+	<div class='gscol2>
+		<div class='textarea sectiontitle'>Log</div>
     <div id="messages">
 
     </div>
-    <div hidden="true" id="resetbut"><button class="btn" id="reset_but">Reset Game</button></div>
+	    </div>
+	
+		    </div>
   </div>
 </body>
 
