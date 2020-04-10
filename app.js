@@ -46,6 +46,8 @@ glob("./public/cards/*", function (er, files) {
 //globals for tracking state
 var players = [];
 var playerdata = [];
+var tempplayers = [];
+var tempplayerdata = [];
 var discard = [];
 var pile = [];
 var turn = 0;
@@ -72,6 +74,7 @@ var reverseCard;
 var slapdownCard;
 var turnCounter;
 var playedCard = '';
+var killmessage = '';
 
 //open a socket
 io.on('connection', function (socket) {
@@ -194,6 +197,45 @@ io.on('connection', function (socket) {
     updateState();
 
   });
+  
+  socket.on('kill', function (data) {
+    console.log(data);
+    let playerIndex = data.i;
+    let uuid = data.uuid;
+    message(`${uuidToName(uuid)} - killed ${playerdata[playerIndex].name}`);
+	killmessage = uuidToName(uuid) + '- killed ' + playerdata[playerIndex].name;
+	
+	//Update players
+	
+    for (let thisPlayer = 0; thisPlayer < playerIndex; thisPlayer++) {
+		tempplayers[thisPlayer] = players[thisPlayer];
+		tempplayerdata[thisPlayer] = playerdata[thisPlayer];
+	}
+		
+    for (let thisPlayer = playerIndex + 1; thisPlayer < players.length; thisPlayer++) {
+		tempplayers[thisPlayer - 1] = players[thisPlayer];
+		tempplayerdata[thisPlayer - 1] = playerdata[thisPlayer];
+	}
+	
+	players = tempplayers;
+	playerdata = tempplayerdata;
+
+	tempplayers = [];
+	tempplayerdata = [];
+	
+	if(playerIndex == turn)
+	{
+		turn = nextPlayer(turn);
+	}
+	
+	if(playerIndex == dealer)
+	{
+		dealer = nextPlayer(dealer);		
+	}
+	
+    updateState();
+
+  });
 
   //user picks up a card
   socket.on('pickupanddraw', function (uuid) {
@@ -217,6 +259,7 @@ io.on('connection', function (socket) {
       playerdata[turn].unotime = null;
       dontWaitUp = null;
       dontWaitUpCard = '';
+	  killmessage = '';
       nextTurn(false);
       playerdata[playerIndex].cardsInHand = players[playerIndex].hand.length;
       updateState();
@@ -233,6 +276,7 @@ io.on('connection', function (socket) {
         playerdata[turn].unotime = null;
         reverseCard = false;
 	    slapdownCard = false;
+		killmessage = '';
         skip = false;
         turnCounter++;
         checkPile();
@@ -562,17 +606,20 @@ function updateState() {
 
 	if (inProgress) {
 		if (playerindex == turn) {
-			if (drawEnabled) {
-			  if (challengeEnabled) {
-				playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards, or challenge!';
-			  } else {
-				if (slapdownCard) {
-				  playerdata[playerindex].status = 'Slapdown! Pick up ' + drawAmount + ' cards!';
+			if (killmessage != ''){
+				  playerdata[playerindex].status = killmessage + '. Your turn!';				
+			} 
+		  	else if (drawEnabled) {
+			    if (challengeEnabled) {
+			  	  playerdata[playerindex].status = 'Pick Up ' + drawAmount + ' cards, or challenge!';
+			    } else {
+				  if (slapdownCard) {
+				    playerdata[playerindex].status = 'Slapdown! Pick up ' + drawAmount + ' cards!';
 
-				} else {
-				  playerdata[playerindex].status = 'Pick up ' + drawAmount + ' cards!';
-				}
-			  }
+				  } else {
+				    playerdata[playerindex].status = 'Pick up ' + drawAmount + ' cards!';
+				  }
+			    }
 			}
 			else if (reverseCard) {
 			  if (slapdownCard) {
@@ -601,7 +648,9 @@ function updateState() {
 			}
 		} else {
 			//Not your turn
-			if ((skip) && (playerindex == skippedPlayer)) {
+			if (killmessage != ''){
+				playerdata[playerindex].status = killmessage + '!';				
+			} else if ((skip) && (playerindex == skippedPlayer)) {
 				playerdata[playerindex].status = 'You got skipped!';
 			} else if (reverseCard) {
 				if (slapdownCard) {
@@ -759,7 +808,8 @@ function playCard(card, uuid, wildColour = null) {
   dontWaitUp = null;
   dontWaitUpCard = '';
   turnCounter++;
-
+  killmessage = '';
+	  
   //Modifiers
   //wild choose colour
   if (card.includes('wild')) {

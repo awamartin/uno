@@ -165,10 +165,12 @@
         $("#challenge").hide();
       }
       //only allow reset if debug
-      if (("debug" == $("#playerName").val()) || debugEnabled == 'true' || (resetEnabled)) {
+      if (debugEnabled == 'true' || (resetEnabled)) {
         $("#resetbut").show();
+        $("#killtable").show();
       } else {
         $("#resetbut").hide();
+        $("#killtable").hide();
       }
       //show Your Deal text
       if (inProgress) {
@@ -306,6 +308,25 @@
             }
           });
         $('#unotable').append(catchbutton, `  `);
+
+      }
+	  
+      //clear killtable
+      $('#killtable').empty();
+      //dyanmically add the other players
+      for (let i = 0; i < playerCount; i++) {
+        let killbutton;
+        killbutton = $('<button/>',
+          {
+            text: "Kill " + playerdata[i].name,
+            class: "btn",
+            id: "kill" + i + "_but",
+            click: function () {
+              socket.emit('kill', { i, uuid });
+
+            }
+          });
+        $('#killtable').append(killbutton, `  `);
 
       }
 
@@ -505,6 +526,7 @@
       <button class="btn" id="sortmyhand" hidden="true">Sort hand</button>
       <button class="btn" id="uno_but" hidden="true">Uno</button>
       <div class='gamebuttons' id="unotable"></div>
+	  <div hidden="true" class='gamebuttons' id="killtable"></div>
 	  <div hidden="true" id="resetbut"><button class="btn" id="reset_but">Reset Game</button></div>
     </div>
     <div class='textarea sectiontitle'>Scores</div>
