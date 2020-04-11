@@ -934,14 +934,16 @@ function playCard(card, uuid, wildColour = null, socket) {
     inProgress = false;
     updateScore();
     playerdata[playerIndex].wins += 1;
-    playerdata[playerIndex].uno = false;
-    playerdata[playerIndex].unotime = null;
     lowestValue = 1000;
     highestValue = 0;
     winner = '';
     loser = '';
     //check game over
     for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
+		
+	  playerdata[thisPlayer].uno = false;
+	  playerdata[thisPlayer].unotime = null;
+	
       if (playerdata[thisPlayer].score < lowestValue) {
         lowestValue = playerdata[thisPlayer].score;
         winner = playerdata[thisPlayer].name;
