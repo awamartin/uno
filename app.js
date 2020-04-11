@@ -334,7 +334,7 @@ io.on('connection', function (socket) {
 		playedCard = card;
 		playCard(card, uuid, null, socket);	
 		  
-	  } else if (card.includes('colourchoice')) {
+	  } else if ((card.includes('colourchoice')) && (playedCard != '')) {
         message(`${uuidToName(uuid)} - chose a colour`);
 		wildColour = data.wildColour;
 		
