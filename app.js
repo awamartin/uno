@@ -77,6 +77,7 @@ var playedCard = '';
 var killmessage = '';
 var endmessage = '';
 var lockPlayers = false;
+var unlucky;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -320,6 +321,10 @@ io.on('connection', function (socket) {
       message(`${uuidToName(uuid)} - Wild colour has been set to ${wildColour}`)
       //is this called?
       currentColour = wildColour;
+	  if(unlucky){
+		  nextTurn();
+		  unlucky = false;
+	  }	  
       updateState();
     } else {
 
@@ -578,6 +583,8 @@ function deal() {
   //randomly sort
   pile.sort(() => Math.random() - 0.5);
   //deal
+  
+  turn = dealer;
   players.forEach((player, playerIndex) => {
     for (let cardIndex = 0; cardIndex < 7; cardIndex++) {
       players[playerIndex].hand.push(pile.pop());
@@ -603,9 +610,15 @@ function deal() {
 
   //draw four
   if (topCard.includes('wild_pick')) {
-    drawAmount = 4;
-    drawEnabled = true;
-  }
+	let unluckyplayer = nextPlayer(turn, reverseDirection);
+	unlucky = true;
+    message(`${playerdata[unluckyplayer].name} got dealt a Draw 4! Unlucky! They'll choose the colour.`);
+	for (let cardIndex = 0; cardIndex < 4; cardIndex++) {
+		  players[unluckyplayer].hand.push(pile.pop());
+		}
+		players[unluckyplayer].hand.sort();
+		playerdata[unluckyplayer].cardsInHand = players[unluckyplayer].hand.length;
+	 }
 
   //skip
   skip = false;
@@ -629,7 +642,6 @@ function deal() {
 	  playerdata[thisPlayer].blink = false;
   }
   
-
   nextTurn(skip);
 
   inProgress = true;
@@ -853,7 +865,7 @@ function playCard(card, uuid, wildColour = null, socket) {
   }
 
   //player must draw or challenge
-  if (challengeEnabled && drawEnabled) {
+  if ((challengeEnabled && drawEnabled) || unlucky) {
     message(`${uuidToName(uuid)} - tried to play a card but needs to pickup or challenge`);
     return false;
   }
@@ -1087,8 +1099,8 @@ function nextTurn(Skip = false) {
 	  playerdata[thisPlayer].blink = false;
   }
   turn = nextPlayer(turn, reverseDirection);
-  setTimeout(turnTimer, 5000, turn);
   if (Skip) turn = nextPlayer(turn, reverseDirection);
+  setTimeout(turnTimer, 5000, turn);
   io.sockets.emit('turn', turn);
 }
 
