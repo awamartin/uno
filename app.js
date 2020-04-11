@@ -76,6 +76,7 @@ var turnCounter;
 var playedCard = '';
 var killmessage = '';
 var endmessage = '';
+var lockPlayers = false;
 
 //open a socket
 io.on('connection', function (socket) {
@@ -97,27 +98,29 @@ io.on('connection', function (socket) {
         players[playerIndex].socket = socket.id;
       });
     } else {
-      //create new player
-      console.log(`player ${uuid} created`);
-      players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
-      let newplayerindex = uuidToIndex(uuid);
-      playerdata.push({ cardsInHand: 0, score: 0, lastRound: 0, wins: 0, name: players[newplayerindex].name, uno: false, blink: false, unotime: null, status: '' });
-      if (inProgress) {
-        message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
-        players[newplayerindex].hand.push(pile.pop());
-        checkPile();
+		if(!lockPlayers) {
+		  //create new player
+		  console.log(`player ${uuid} created`);
+		  players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
+		  let newplayerindex = uuidToIndex(uuid);
+		  playerdata.push({ cardsInHand: 0, score: 0, lastRound: 0, wins: 0, name: players[newplayerindex].name, uno: false, blink: false, unotime: null, status: '' });
+		  if (inProgress) {
+			message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+			players[newplayerindex].hand.push(pile.pop());
+			checkPile();
+		  }
       }
     }
     updateState();
@@ -162,10 +165,6 @@ io.on('connection', function (socket) {
     message(`${uuidToName(uuid)} - tried to catch ${playerdata[playerIndex].name}`);
     if (playerdata[playerIndex].unotime == null) {
       message(`${playerdata[playerIndex].name} was not in Uno`);
-      for (let drawIndex = 0; drawIndex < 2; drawIndex++) {
-        players[uuidToIndex(uuid)].hand.push(pile.pop());
-        checkPile();
-      }
 
     } else {
       if (playerdata[playerIndex].uno) {
@@ -488,6 +487,15 @@ io.on('connection', function (socket) {
     //init all of the gobals to their default state
     reset();
     return '';
+  });
+  
+  //lock players
+  socket.on('lockplayers', function (uuid) {
+
+	lockPlayers = !lockPlayers;
+	
+    message(`${uuidToName(uuid)} - Player lock is now set to ${lockPlayers}`);
+    updateState();
   });
 });
 

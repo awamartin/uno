@@ -71,6 +71,9 @@
     $("#reset_but").click(function () {
       socket.emit('reset', uuid);
     });
+    $("#lockplayers_but").click(function () {
+      socket.emit('lockplayers', uuid);
+    });
 
     $("#uno1_but").click(function () {
       socket.emit('uno7', uuid);
@@ -168,9 +171,11 @@
       if (debugEnabled == 'true' || (resetEnabled)) {
         $("#resetbut").show();
         $("#killtable").show();
+        $("#lockplayers").show();
       } else {
         $("#resetbut").hide();
         $("#killtable").hide();
+        $("#lockplayers").hide();
       }
       //show Your Deal text
       if (inProgress) {
@@ -540,6 +545,7 @@
       <div class='gamebuttons' id="unotable"></div>
 	  <div hidden="true" class='gamebuttons' id="killtable"></div>
 	  <div hidden="true" id="resetbut"><button class="btn" id="reset_but">Reset Game</button></div>
+	  <div hidden="true" id="lockplayers"><button class="btn" id="lockplayers_but">Lock Players</button></div>
     </div>
     <div class='textarea sectiontitle'>Scores</div>
     <div>
