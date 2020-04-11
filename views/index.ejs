@@ -277,10 +277,22 @@
 
       for (let i = 0; i < playerCount; i++) {
         if ($("#playerName").val() == playerdata[i].name) {
+			
           let thisstatus = playerdata[i].status;
-          console.log(thisstatus);
-          $("#statusdata").text(thisstatus);
-        }
+		  if (playerdata[i].blink) {
+		  
+			$("#blinkingstatusdata").show();
+			$("#blinkingstatusdata").text(thisstatus);
+			$("#statusdata").hide();
+		  
+		  } else {
+		  
+			$("#statusdata").show();
+			$("#statusdata").text(thisstatus);
+			$("#blinkingstatusdata").hide();
+        
+		  }
+		}
       }
 
 
@@ -496,7 +508,7 @@
       </div>
       <div class='gscol1'>
         <div>
-          <label class="statustext" id="statusdata"></label></div>
+          <label hidden="true" class="statustext" id="statusdata"></label><label hidden="true" class="blinking" id="blinkingstatusdata"></div>
 
       </div>
     </div>

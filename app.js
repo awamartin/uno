@@ -89,22 +89,19 @@ io.on('connection', function (socket) {
   //user connected and sends uuid to identify
   socket.on('register', function (uuid) {
     console.log('register: ' + uuid);
-message(`${uuidToName(uuid)} registered`);
     //does player exist?
     if (players.find(player => player.uuid == uuid) != null) {
-message(`${uuidToName(uuid)} registered 1`);
       //player exists
       console.log(`player ${uuid} exists`);
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
       });
     } else {
-message(`${uuidToName(uuid)} registered 2`);
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
       let newplayerindex = uuidToIndex(uuid);
-      playerdata.push({ cardsInHand: 0, score: 0, lastRound: 0, wins: 0, name: players[newplayerindex].name, uno: false, unotime: null, status: '' });
+      playerdata.push({ cardsInHand: 0, score: 0, lastRound: 0, wins: 0, name: players[newplayerindex].name, uno: false, blink: false, unotime: null, status: '' });
       if (inProgress) {
         message(`new player ${uuidToName(uuid)} - joined halfway through a game`);
         players[newplayerindex].hand.push(pile.pop());
@@ -619,6 +616,11 @@ function deal() {
     reverseDirection = !reverseDirection;
     reverseCard = true;
   }
+  
+ for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
+	  playerdata[thisPlayer].blink = false;
+  }
+  
 
   nextTurn(skip);
 
@@ -742,6 +744,7 @@ function updateState() {
     } 
     else {
 		if (playerindex == dealer) {
+			playerdata[playerindex].blink = true;
 			playerdata[playerindex].status = 'Your Deal!';
 			
 		} else {
@@ -1061,10 +1064,23 @@ function updateScore() {
     playerdata[thisPlayer].lastRound = scoreInHand;
   }
 }
+
+
+function turnTimer(arg) {
+  if(arg == turn) {
+	playerdata[arg].blink = true;
+  }
+  updateState();
+}
+
 //apply the next turn
 function nextTurn(Skip = false) {
 
+  for (let thisPlayer = 0; thisPlayer < players.length; thisPlayer++) {
+	  playerdata[thisPlayer].blink = false;
+  }
   turn = nextPlayer(turn, reverseDirection);
+  setTimeout(turnTimer, 5000, turn);
   if (Skip) turn = nextPlayer(turn, reverseDirection);
   io.sockets.emit('turn', turn);
 }
