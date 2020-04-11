@@ -89,18 +89,17 @@ io.on('connection', function (socket) {
   //user connected and sends uuid to identify
   socket.on('register', function (uuid) {
     console.log('register: ' + uuid);
-
+message(`${uuidToName(uuid)} registered`);
     //does player exist?
     if (players.find(player => player.uuid == uuid) != null) {
+message(`${uuidToName(uuid)} registered 1`);
       //player exists
       console.log(`player ${uuid} exists`);
       players.find((player, playerIndex) => {
         players[playerIndex].socket = socket.id;
-        players[playerIndex].name = `Player ${playerIndex + 1}`;
-        playerdata[playerIndex].cardsInHand = 0;
-        playerdata[playerIndex].name = players[playerIndex].name;
       });
     } else {
+message(`${uuidToName(uuid)} registered 2`);
       //create new player
       console.log(`player ${uuid} created`);
       players.push({ uuid, hand: [], socket: socket.id, name: `Player ${players.length + 1}` });
