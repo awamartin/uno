@@ -634,7 +634,6 @@ function deal() {
 
   inProgress = true;
   turnCounter = 0;
-  turn = nextPlayer(dealer);
   dealer = nextPlayer(dealer);
 
 
